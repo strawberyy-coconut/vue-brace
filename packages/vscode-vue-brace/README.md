@@ -7,8 +7,9 @@ Grammar only — no activation code, no language server, no runtime.
 | --- | --- |
 | the `brace` block, `{{ … }}`, and Vue's `:prop` / `@click` / `v-` | [`@cockernutx/language-plugin-brace`](../language-plugin-brace) — completions, hover, navigation, diagnostics |
 
-Why highlighting here needs injected grammars rather than just a language registration is
-written up in [`docs/internals/volar-and-editor-notes.md`](../../docs/internals/volar-and-editor-notes.md).
+Why highlighting here needs injected grammars rather than just a language registration is what
+`syntaxes/brace.vue-block.json` and its `injectTo` entry in `package.json` are for: the block is
+tokenized by Volar's own `text.html.vue` grammar, which a language registration cannot reach.
 
 ## Installing
 
@@ -34,6 +35,10 @@ The folder name must be `<publisher>.<name>-<version>` — it has to match this 
 `publisher`, `name` and `version` fields, or VS Code will not load it.
 
 To remove it, delete the symlink and reload.
+
+Packaging the `.vsix` — this package's `build` task — runs `vsce`, which needs Node. The dev
+container is Deno-only, so it runs in [`containers/extension`](../../containers/extension) rather
+than here.
 
 ### Confirming it loaded
 
@@ -89,9 +94,9 @@ apply to a real file:
 
 ```sh
 cd packages/vscode-vue-brace
-deno task scopes                        # flags lines that escape the brace grammar
-deno task scopes path/to/File.vue --all # every token and its full scope chain
-deno task scopes --theme theme.json     # resolve each scope through a theme, and print colours
+deno run -A scripts/dump-scopes.ts                        # flags lines that escape the brace grammar
+deno run -A scripts/dump-scopes.ts path/to/File.vue --all # every token and its full scope chain
+deno run -A scripts/dump-scopes.ts --theme theme.json     # resolve each scope through a theme
 ```
 
 This reproduces the real pipeline — block injection, directive injection and Vue.volar's own

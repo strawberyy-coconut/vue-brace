@@ -1,0 +1,27 @@
+# The extension container: package `vscode-vue-brace.vsix`.
+#
+# Node, because there is no other way to build a `.vsix` (`vsce` is a Node tool), and Deno so the
+# package's own `build` task runs — the container calls the child task instead of duplicating the
+# command. This is the one artefact the dev container cannot build.
+FROM node:22-bookworm-slim AS node
+
+FROM docker.io/denoland/deno:2.9.7 AS package
+USER root
+
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+ && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
+WORKDIR /work
+COPY . .
+
+ARG RELEASE_TAG
+ENV RELEASE_TAG=$RELEASE_TAG
+RUN sh containers/extension/run.sh
+
+# Only the `.vsix` leaves the build:
+#
+#   docker build -f containers/extension/Containerfile --target artifact -o type=local,dest=out .
+FROM scratch AS artifact
+COPY --from=package /out/ /

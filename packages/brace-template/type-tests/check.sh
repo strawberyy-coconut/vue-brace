@@ -1,0 +1,20 @@
+#!/bin/sh
+# Type-level checks for this package, run with `tsc`.
+#
+# Kept out of `deno check` on purpose: Deno's checker does not honour Vue's `SlotsType`
+# (`unique symbol`-branded), so these assertions fail there for the wrong reason. `tsc` is also
+# what Volar uses, so it is the checker worth trusting for anything Volar reads.
+#
+# `allowImportingTsExtensions` because the package's own sources import each other Deno-style
+# (`./BraceEmpty.ts`), and this program reaches them through `BraceTry.ts`. It is only legal
+# alongside `--noEmit`, which is what this script does anyway.
+#
+# `--ignoreConfig` because TypeScript 6 refuses to take files on the command line when it can see
+# a `tsconfig.json` above the working directory, and this package has one. It ignores the project
+# file rather than merging it, which is what the flags below already describe.
+set -e
+cd "$(dirname "$0")/.."
+exec deno run -A npm:typescript/bin/tsc --ignoreConfig --noEmit --strict --skipLibCheck \
+  --allowImportingTsExtensions \
+  --target es2022 --module esnext --moduleResolution bundler --lib es2022,dom \
+  type-tests/brace-try.ts

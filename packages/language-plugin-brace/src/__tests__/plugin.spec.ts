@@ -296,14 +296,14 @@ describe('language plugin', () => {
    * Deno can `require()` `.ts`, so serving source appears to work here while failing in the
    * editor and in `vue-tsc`, which are Node processes. The failure is invisible: Volar
    * catches the `SyntaxError` and runs *without* the plugin, so every brace template quietly
-   * loses brace syntax, hover and diagnostics. `deno task build:plugin` compiles it.
+   * loses brace syntax, hover and diagnostics. `deno task build` compiles it.
    */
   it('loads the compiled entry rather than TypeScript source', () => {
     const entry = readFileSync(new URL('../../index.cjs', import.meta.url), 'utf8')
     expect(entry).not.toMatch(/require\(['"][^'"]*\.ts['"]\)/)
 
     const built = new URL('../../dist/index.js', import.meta.url)
-    expect(existsSync(built), 'dist/index.js is missing — run `deno task build:plugin`').toBe(
+    expect(existsSync(built), 'dist/index.js is missing — run `deno task build`').toBe(
       true,
     )
 
@@ -313,7 +313,7 @@ describe('language plugin', () => {
     )
     expect(
       sources[1]!.mtimeMs,
-      'dist/index.js is older than src/index.ts — run `deno task build:plugin`',
+      'dist/index.js is older than src/index.ts — run `deno task build`',
     ).toBeGreaterThanOrEqual(sources[0]!.mtimeMs)
   })
 

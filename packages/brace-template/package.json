@@ -32,9 +32,9 @@
   },
   "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
-    "prepack": "deno task --cwd=../.. build:plugin",
+    "build": "deno run -A build.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "check:types": "sh type-tests/check.sh"
   },
   "keywords": ["vue", "template", "compiler", "sfc", "control-flow"],
   "repository": {

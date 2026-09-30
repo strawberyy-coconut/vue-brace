@@ -14,9 +14,8 @@
   },
   "files": ["dist", "index.cjs", "README.md", "LICENSE"],
   "scripts": {
-    "prepack": "deno task --cwd=../.. build:plugin",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "build": "deno run -A build.ts",
+    "test": "vitest run"
   },
   "keywords": ["vue", "volar", "language-server", "plugin", "template"],
   "repository": {

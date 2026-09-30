@@ -44,10 +44,10 @@ The plugin is TypeScript, and only this repository's Deno toolchain can load tha
 process needs the build. So from a checkout, compile before the editor will see your changes:
 
 ```sh
-deno task build:plugin     # from the repo root
+deno task build            # from the repo root; builds every package
 ```
 
-`index.cjs` loads `dist/index.js`, `deno task test` rebuilds it, and a test fails if `dist` is
+`index.cjs` loads `dist/index.js`, `deno task test` builds it first, and a test fails if `dist` is
 missing or older than the source it came from.
 
 ## Notes
@@ -57,7 +57,7 @@ missing or older than the source it came from.
 - The plugin API version is pinned to `2.2`, one of language-core's `validVersions`
   (`[2, 2.1, 2.2]`); anything else drops the plugin with a console warning only.
 - **`@for` with `index` / `key`, and the `@catch` bindings, depend on offset alignment that is
-  load-bearing.** Read [`docs/internals/volar-and-editor-notes.md`](../../docs/internals/volar-and-editor-notes.md)
-  before changing it.
+  load-bearing.** Read `src/__tests__/plugin.spec.ts` — it replicates the arithmetic Volar does —
+  and `../brace-template/src/mapper.ts` before changing it.
 - **`vue-tsc` needs a Node runtime** and cannot run under Deno: Volar registers `.vue` support
   through an `fs.readFileSync` hook that Deno bypasses.

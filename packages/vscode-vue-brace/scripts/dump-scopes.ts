@@ -11,7 +11,7 @@
  * theme decides that. Pass `--theme` with a VS Code theme JSON to see the resolved colour —
  * without it the report only tells you about *scopes*.
  *
- * Usage: `deno task scopes [path/to/File.vue] [--all] [--theme theme.json]`
+ * Usage: `deno run -A scripts/dump-scopes.ts [path/to/File.vue] [--all] [--theme theme.json]`
  *
  * By default only lines that look suspicious are shown: tokens that fall back to Vue's
  * `text.html.derivative`, tokens scoped as though they were outside the brace block, and any

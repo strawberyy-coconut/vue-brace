@@ -74,5 +74,6 @@ The `<template lang="brace">` attribute *is* the registration; nothing else need
   DOM-free code, so it is safe to type-check under a Node `lib`.
 - `compileBraceWithMap()` and `createOffsetMapper()` record, per generated line, the segments
   (`{ gen, src, length }`) copied verbatim from the source; anything else is synthesised markup.
-  The mapping rules and the traps behind them are in
-  [`docs/internals/volar-and-editor-notes.md`](../../docs/internals/volar-and-editor-notes.md).
+  The mapping rules and the traps behind them are in the comments in `src/mapper.ts` and the
+  offsets pinned in
+  [`../language-plugin-brace/src/__tests__/plugin.spec.ts`](../language-plugin-brace/src/__tests__/plugin.spec.ts).

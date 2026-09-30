@@ -1,5 +1,5 @@
 /**
- * Type-level checks for the `@catch` slot props, run by `tsc` (see the root `check:types`
+ * Type-level checks for the `@catch` slot props, run by `tsc` (the package's `check:types`
  * task) rather than by Vitest, because they assert on types rather than on behaviour.
  *
  * `@catch (e, retry) {` compiles to `<template #catch="[e, retry]">` — a positional copy of the

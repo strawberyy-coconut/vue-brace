@@ -19,8 +19,8 @@
   "bugs": "https://github.com/strawberyy-coconut/vue-brace/issues",
   "files": ["syntaxes", "language-configuration.json", "README.md", "LICENSE"],
   "scripts": {
-    "test": "vitest run",
-    "scopes": "deno run -A scripts/dump-scopes.ts"
+    "build": "npx --yes @vscode/vsce package --out vscode-vue-brace.vsix < /dev/null",
+    "test": "vitest run"
   },
   "contributes": {
     "languages": [

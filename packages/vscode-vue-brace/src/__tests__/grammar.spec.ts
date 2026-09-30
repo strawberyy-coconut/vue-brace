@@ -71,7 +71,7 @@ describe('brace grammar', () => {
    * what "the highlighting is broken on the @for line" looked like.
    *
    * The bindings themselves are handled by the expression grammar, which is stubbed here —
-   * `deno task scopes` is what shows those.
+   * `scripts/dump-scopes.ts` is what shows those.
    */
   it('scopes the @for clauses as syntax, not as identifiers', () => {
     const line = '  @for (item of items; index i; key item.id) {'

@@ -1,0 +1,22 @@
+# The release environment: build the packages, check the tarballs, publish with `npm publish`.
+#
+# Node comes from apt because `npm publish` is the publisher. The publish token arrives as a
+# BuildKit secret, never as a build argument, so it cannot be baked into a layer or shown in
+# `docker history`.
+FROM docker.io/denoland/deno:2.9.7
+USER root
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends nodejs npm \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+COPY . .
+
+ARG NPM_REGISTRY=https://registry.npmjs.org
+ARG DRY_RUN=false
+ENV NPM_REGISTRY=$NPM_REGISTRY DRY_RUN=$DRY_RUN
+
+RUN --mount=type=secret,id=npm_token \
+    NPM_TOKEN="$(cat /run/secrets/npm_token 2>/dev/null || true)" \
+    sh containers/release/run.sh

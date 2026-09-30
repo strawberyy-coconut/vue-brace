@@ -103,7 +103,7 @@ swallowed `SyntaxError`, and the editor silently runs without language features,
 (and after every plugin change) and reload:
 
 ```sh
-deno task build:plugin
+deno task build
 ```
 
 `deno task dev` and `deno task test` run that for you.
@@ -113,18 +113,24 @@ deno task build:plugin
 | Command | What it does |
 | --- | --- |
 | `deno task dev` | builds the packages, then starts the playground dev server |
-| `deno task test` | builds the plugin, runs all four suites, then the type-level checks |
-| `deno task build` | production build of the playground |
-| `deno task lint` | oxlint + eslint in the playground, oxlint over `packages/` and `scripts/` |
-| `deno task check:types` | `tsc` over `packages/*/type-tests` (Vue's `SlotsType` needs tsc, not `deno check`) |
-| `deno task check:pack` | every `exports` target exists and none points at TypeScript |
-| `deno task build:plugin` | compiles the compiler and the Volar plugin for Node — what this repo's editor loads |
-| `deno task registry` | the repository's own npm registry, on `:4873` |
-| `deno task release` | build, pack and publish both packages (`--local` for that registry) |
-| `deno task type-check` | `vue-tsc --build` — needs a Node runtime, see the notes below |
-| `deno task format` | `oxfmt` over `playground/src` only — the packages are hand-formatted |
-| `deno task preview` | serve the production build locally |
-| `deno task --cwd=packages/vscode-vue-brace scopes` | dump the token scopes a brace file gets |
+| `deno task test` | builds the packages, then runs all four suites |
+| `deno task build` | builds both packages, then the playground (production) |
+| `deno task lint` | oxlint over `packages/` and `containers/`, eslint + oxlint in the playground |
+| `deno task check:types` | `tsc` over `packages/brace-template/type-tests` (Vue's `SlotsType` needs tsc, not `deno check`) |
+| `deno task type-check` | `vue-tsc --build` — needs a Node runtime, so it runs in the CI container |
+
+Everything else this repository needs is not a task. It lives in [`containers/`](containers) as
+shell scripts — there is no CI YAML to read, so these are the deployment:
+
+```sh
+docker build -f containers/ci/Containerfile .        # the checks
+docker build -f containers/release/Containerfile .   # publish (NPM_REGISTRY, NPM_TOKEN secret)
+docker build -f containers/extension/Containerfile --target artifact -o type=local,dest=out .
+```
+
+`containers/*/run.sh` is the actual work, so it can be read (and, where the tools exist, run)
+directly. A package never reaches up to the root for a task — the root only calls down, and each
+package owns its own `build` and `test`.
 
 ## Notes
 
@@ -135,12 +141,14 @@ deno task build:plugin
   `no-unused-vars` fires for every binding the template consumes. The affected files opt out with a
   scoped override in `playground/eslint.config.ts`.
 - **`vue-tsc` does not work under Deno** — it registers `.vue` support by hooking
-  `fs.readFileSync`, which Deno bypasses, and the failure is silent. Use `deno task check:types` and
-  the test suites instead.
+  `fs.readFileSync`, which Deno bypasses, and the failure is silent. `deno task check:types` is the
+  type check that works here; `deno task type-check` needs Node, so it runs in the CI container.
 - **Inside `@try` / `@catch` / `@pending`, bindings hover as `any` if `<BraceTry>` does not
   resolve.** It registers itself globally (`GlobalComponents`, and `playground/env.d.ts` does too).
 - **`@for` with `index` / `key`, and the `@catch` bindings, are where generated text has to line up
-  with the author's exactly.** Read [`docs/internals/volar-and-editor-notes.md`](docs/internals/volar-and-editor-notes.md)
-  before changing offsets.
-- Distribution and releases: [`docs/distribution.md`](docs/distribution.md),
-  [`docs/releasing.md`](docs/releasing.md).
+  with the author's exactly.** Read `packages/brace-template/src/mapper.ts` and the arithmetic the
+  plugin's tests replicate in
+  `packages/language-plugin-brace/src/__tests__/plugin.spec.ts` before changing offsets.
+- Distribution and releases: `containers/release/` — `run.sh` publishes with `npm publish`, and
+  `pack.ts` checks the tarballs first for the failures npm does not catch (a missing `exports`
+  target, a `src/` file that leaked into `files`).

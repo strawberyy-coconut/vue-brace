@@ -8,7 +8,7 @@ import { defineComponent, type SlotsType } from 'vue'
  * harmlessly: it highlights the identifiers in a condition and lays the whole expression out
  * from its own start, so wherever the compiler anchored it, ~13 characters of the author's
  * file were recoloured — parked at the end of the line, the six-character `length` token
- * painted the line *below* (see `docs/internals/volar-and-editor-notes.md`).
+ * painted the line *below* (which is why `src/mapper.ts` parks synthesised text at the line end).
  *
  * Moving the test here removes the synthesised expression: the `:list` prop is the author's own
  * text, copied 1:1 and attributed to the `@for` line it was written on, so every character of

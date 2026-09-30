@@ -1,0 +1,12 @@
+# The build context is the whole repository. Keep it to the files the containers actually build
+# from: a stale `dist/`, an installed `node_modules`, a previous `.vsix` or a checked tarball
+# would be copied in and could be mistaken for build output.
+.git
+.devcontainer
+.vscode
+node_modules
+**/node_modules
+dist
+**/dist
+.release
+*.vsix

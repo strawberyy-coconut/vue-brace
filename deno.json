@@ -9,19 +9,19 @@
     "vue": "3.6.0-rc.9",
     "@vue/compiler-dom": "3.6.0-rc.9"
   },
+  // Build, run and test, plus the two checks worth keeping. Everything else this repository
+  // needs — packing, publishing, packaging the extension — lives in `containers/`, because it
+  // runs in CI and needs tooling this container deliberately does not have.
+  //
+  // Each member owns its own `build`/`test`; these tasks only delegate, so no package ever
+  // reaches back up to the root. Order matters in `build`: the plugin type-checks against
+  // `brace-template`'s emitted declarations.
   "tasks": {
-    "dev": "deno task build:plugin && deno task --cwd=playground dev",
-    "build": "deno task --cwd=playground build",
-    "build:plugin": "deno run -A scripts/build-plugin.ts",
-    "check:types": "./scripts/check-types.sh",
-    "check:pack": "deno run -A scripts/check-package.ts",
-    "registry": "deno run -A scripts/registry.ts",
-    "release": "deno run -A scripts/release.ts",
-    "preview": "deno task --cwd=playground preview",
-    "type-check": "deno task --cwd=playground type-check",
-    "test": "deno task build:plugin && deno task --cwd=packages/brace-template test && deno task --cwd=packages/language-plugin-brace test && deno task --cwd=packages/vscode-vue-brace test && deno task --cwd=playground test && deno task check:types && deno task check:pack",
-    "lint": "deno task --cwd=playground lint && deno task lint:packages",
-    "lint:packages": "oxlint packages scripts",
-    "format": "deno task --cwd=playground format"
+    "dev": "deno task build && deno task --cwd=playground dev",
+    "build": "deno task --cwd=packages/brace-template build && deno task --cwd=packages/language-plugin-brace build && deno task --cwd=playground build",
+    "test": "deno task build && deno task --cwd=packages/brace-template test && deno task --cwd=packages/language-plugin-brace test && deno task --cwd=packages/vscode-vue-brace test && deno task --cwd=playground test",
+    "lint": "deno task --cwd=playground lint && oxlint packages containers",
+    "check:types": "deno task --cwd=packages/brace-template check:types",
+    "type-check": "deno task --cwd=playground type-check"
   }
 }

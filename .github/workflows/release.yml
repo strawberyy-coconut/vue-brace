@@ -1,25 +1,21 @@
 name: Release
 
-# Tag a commit and the packages in it are published:
+# The release itself is `containers/release/run.sh` — Deno-only, it packs the packages and
+# publishes them. This file only supplies the tag, the registry and the token.
 #
-#   deno task registry                    # or your registry, for a rehearsal
-#   git tag v0.1.0 && git push origin v0.1.0
+#   git tag v0.1.4 && git push origin v0.1.4
 #
 # Needs one repository variable and one secret (Settings → Secrets and variables → Actions):
 #
-#   vars.NPM_REGISTRY   the registry to publish to, e.g. https://npm.pkg.github.com
+#   vars.NPM_REGISTRY   the registry to publish to
 #   secrets.NPM_TOKEN   its publish token (omit if the registry allows anonymous publish)
-#
-# The tag must match the version in every manifest, so a mistyped tag cannot publish 0.1.0 as
-# 0.2.0 — `scripts/check-tag.ts` checks the packages and the cross-package dependency range.
-
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
     inputs:
       tag:
-        description: Version to publish, matching the manifests (e.g. v0.1.0)
+        description: Version to publish, matching the manifests (e.g. v0.1.4)
         required: true
       dry_run:
         description: Build, pack and check without publishing
@@ -29,57 +25,33 @@ on:
 permissions:
   contents: read
 
+env:
+  # The token is passed with `--secret`, which is a BuildKit feature.
+  DOCKER_BUILDKIT: '1'
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    # An environment is what lets `NPM_TOKEN` be scoped to releases instead of the whole
-    # repository, and what lets you require a reviewer before anything is published
-    # (Settings → Environments → release → Required reviewers). GitHub creates it on first use
-    # with no protection, so this is safe before you configure anything.
+    # Scopes `NPM_TOKEN` to releases instead of the whole repository, and allows a required
+    # reviewer before anything is published. GitHub creates it on first use.
     environment: release
     steps:
       - uses: actions/checkout@v4
 
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.9.7
-          cache: true
-
-      - run: deno install --frozen
-
-      - name: Check the tag against the manifests
-        env:
-          # A tag push sets GITHUB_REF_NAME to the tag; a manual run supplies it.
-          RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
-        run: deno run -A scripts/check-tag.ts "$RELEASE_TAG"
-
-      - name: Test
-        run: deno task test
-
-      - name: Publish (dry run)
-        if: ${{ inputs.dry_run }}
-        env:
-          NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
-        run: |
-          if [ -z "$NPM_REGISTRY" ]; then
-            echo "Missing the repository variable NPM_REGISTRY — see docs/releasing.md."
-            exit 1
-          fi
-          deno task release --registry "$NPM_REGISTRY" --dry-run
-
-      - name: Publish
-        if: ${{ !inputs.dry_run }}
+      - name: Run the release container
         env:
           NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # A tag push sets GITHUB_REF_NAME to the tag; a manual run supplies it.
+          RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        # The token goes through a file rather than `--secret id=…,env=…` so an empty value
+        # (a dry run without the secret) is a valid secret rather than a build error.
         run: |
-          # Fail with the fix, not with a 401 three steps later.
-          if [ -z "$NPM_REGISTRY" ]; then
-            echo "Missing the repository variable NPM_REGISTRY (Settings → Secrets and variables → Actions → Variables)."
-            exit 1
-          fi
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "Missing the NPM_TOKEN secret. Use an npm automation token, or a granular token with publish rights for the scope."
-            exit 1
-          fi
-          deno task release --registry "$NPM_REGISTRY" --token "$NPM_TOKEN"
+          printf '%s' "$NPM_TOKEN" > "$RUNNER_TEMP/npm_token"
+          docker build -f containers/release/Containerfile \
+            --build-arg RELEASE_TAG \
+            --build-arg NPM_REGISTRY \
+            --build-arg DRY_RUN \
+            --secret "id=npm_token,src=$RUNNER_TEMP/npm_token" \
+            .

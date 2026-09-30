@@ -6,15 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "run-s \"lint:*\"",
-    "lint:oxlint": "oxlint . --fix",
-    "lint:eslint": "eslint . --fix --cache",
-    "format": "oxfmt src/"
+    "lint": "oxlint . && eslint . --cache",
+    "type-check": "vue-tsc --build"
   },
   "dependencies": {
     "@cockernutx/brace-template": "workspace:*",
@@ -34,8 +28,6 @@
     "eslint-plugin-vue": "~10.11.0",
     "jiti": "^2.7.0",
     "jsdom": "^30.1.1",
-    "npm-run-all2": "^9.0.3",
-    "oxfmt": "^0.67.0",
     "oxlint": "~1.82.0",
     "typescript": "~6.0.0",
     "vite": "^8.2.2",
