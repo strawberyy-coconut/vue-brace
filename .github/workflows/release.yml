@@ -32,6 +32,11 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # An environment is what lets `NPM_TOKEN` be scoped to releases instead of the whole
+    # repository, and what lets you require a reviewer before anything is published
+    # (Settings → Environments → release → Required reviewers). GitHub creates it on first use
+    # with no protection, so this is safe before you configure anything.
+    environment: release
     steps:
       - uses: actions/checkout@v4
 
@@ -57,7 +62,7 @@ jobs:
           NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
         run: |
           if [ -z "$NPM_REGISTRY" ]; then
-            echo "Set the repository variable NPM_REGISTRY first (see docs/distribution.md)."
+            echo "Missing the repository variable NPM_REGISTRY — see docs/releasing.md."
             exit 1
           fi
           deno task release --registry "$NPM_REGISTRY" --dry-run
@@ -67,4 +72,14 @@ jobs:
         env:
           NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: deno task release --registry "$NPM_REGISTRY" --token "$NPM_TOKEN"
+        run: |
+          # Fail with the fix, not with a 401 three steps later.
+          if [ -z "$NPM_REGISTRY" ]; then
+            echo "Missing the repository variable NPM_REGISTRY (Settings → Secrets and variables → Actions → Variables)."
+            exit 1
+          fi
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "Missing the NPM_TOKEN secret. Use an npm automation token, or a granular token with publish rights for the scope."
+            exit 1
+          fi
+          deno task release --registry "$NPM_REGISTRY" --token "$NPM_TOKEN"
