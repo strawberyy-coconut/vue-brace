@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 
-import { braceTemplateOptions } from '@vue-brace/brace-template/vite'
+import { braceTemplateOptions } from '@cockernutx/brace-template/vite'
 
 const require = createRequire(import.meta.url)
 

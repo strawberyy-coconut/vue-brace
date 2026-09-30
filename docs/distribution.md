@@ -38,8 +38,8 @@ problem rather than a wrong URL.
 
 Two npm-specific details are handled by the toolchain, because both are silent traps:
 
-- **Scoped names are percent-encoded in registry paths**: `@vue-brace/brace-template` is requested as
-  `@vue-brace%2fbrace-template`. That is what npm sends, and the official registry routes the
+- **Scoped names are percent-encoded in registry paths**: `@cockernutx/brace-template` is requested as
+  `@cockernutx%2fbrace-template`. That is what npm sends, and the official registry routes the
   encoded form to publish and the unencoded form to a version lookup. Tarball URLs *inside* the
   packument keep the slash, as every real packument does.
 - **`access: public` is sent** in the publish body. A scoped package published without it defaults to
@@ -48,12 +48,13 @@ Two npm-specific details are handled by the toolchain, because both are silent t
 
 What still has to be true outside this repository:
 
-- The account or organisation publishing must **own the `@vue-brace` scope** (or the packages have to
-  be renamed to a scope it owns).
+- The publishing account **owns the scope**, which here needs no setup at all: `@cockernutx` is that
+  account's username, and npm gives a username its own scope automatically. An organisation would be
+  the alternative, and would have to be created before the packages could move into it.
 - `secrets.NPM_TOKEN` must be an automation token, or a granular token with publish rights for that
   scope. Two-factor publishing settings on the account apply to it as well.
-- `repository`, `homepage` and `bugs` in the manifests are what npm links from the package page;
-  they are deliberately unset until this repository has a remote (see `docs/releasing.md`).
+- `repository`, `homepage` and `bugs` are set in the manifests, so npm links the package page to the
+  right folder of this repository.
 
 Consumers of the official registry need no `.npmrc` at all — it is the default. The `.npmrc` line
 below is for the *other* registries.
@@ -62,7 +63,7 @@ A consumer points the scope at it — one line of `.npmrc` — and then installs
 which is what their lockfile wants anyway:
 
 ```ini
-@vue-brace:registry=http://127.0.0.1:4873/
+@cockernutx:registry=http://127.0.0.1:4873/
 ```
 
 `files` in each manifest decides what ships; `prepack` rebuilds, so a hand-run `npm publish` cannot

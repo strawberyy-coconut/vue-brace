@@ -13,7 +13,7 @@ export interface BraceTemplateOptions {
  *
  * ```ts
  * import { createRequire } from 'node:module'
- * import { braceTemplateOptions } from '@vue-brace/brace-template/vite'
+ * import { braceTemplateOptions } from '@cockernutx/brace-template/vite'
  *
  * const require = createRequire(import.meta.url)
  *

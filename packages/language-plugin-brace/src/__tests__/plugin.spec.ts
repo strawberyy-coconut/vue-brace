@@ -286,7 +286,7 @@ describe('language plugin', () => {
    */
   it('is require-able and callable as language-core expects', () => {
     const require = createRequire(import.meta.url)
-    const loaded = require('@vue-brace/language-plugin-brace')
+    const loaded = require('@cockernutx/language-plugin-brace')
     expect(typeof loaded).toBe('function')
   })
 

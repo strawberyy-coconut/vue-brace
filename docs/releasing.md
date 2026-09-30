@@ -7,8 +7,8 @@ This is the checklist for cutting a version.
 
 | Package | Registry | Built by | Contents |
 | --- | --- | --- | --- |
-| `@vue-brace/brace-template` | npm | `deno task build:plugin` (two `tsc` projects) | `dist/` — CommonJS for Node consumers — and `dist/esm/` for bundlers and Deno, each with declarations |
-| `@vue-brace/language-plugin-brace` | npm | the same task | `dist/` (CommonJS: the entry Volar `require()`s) plus the `index.cjs` shim |
+| `@cockernutx/brace-template` | npm | `deno task build:plugin` (two `tsc` projects) | `dist/` — CommonJS for Node consumers — and `dist/esm/` for bundlers and Deno, each with declarations |
+| `@cockernutx/language-plugin-brace` | npm | the same task | `dist/` (CommonJS: the entry Volar `require()`s) plus the `index.cjs` shim |
 | `vscode-vue-brace` | VS Code Marketplace | nothing — it is grammar files and a manifest | `syntaxes/`, `language-configuration.json` |
 
 The extension ships an *allow-list* — the `files` field in its manifest — rather than a
@@ -35,7 +35,7 @@ regenerated, and every publish runs the build first.
    is the one that matters — a plugin that fails to load produces only a warning in the editor's
    output channel, and then every brace template is silently untyped.
 5. Bump `version` in **every** package that ships, and keep the plugin's
-   `@vue-brace/brace-template` range in step with it.
+   `@cockernutx/brace-template` range in step with it.
 6. For the editor extension, `npx vsce package` / `vsce publish` — that needs Node and a publisher
    account, neither of which exists in this container, so it runs on the host.
 
@@ -56,7 +56,7 @@ GitHub's UI; the values are the ones this repository expects.
 | --- | --- | --- |
 | `NPM_REGISTRY` | Settings → Secrets and variables → Actions → **Variables** → New repository variable | `https://registry.npmjs.org` (the website, `www.npmjs.com`, is not a publish target) |
 | `NPM_TOKEN` | same page → **Secrets** → New repository secret | an npm **automation** token (npmjs.com → Access Tokens → Generate new token → Automation). Automation tokens skip the OTP prompt, which a release job cannot answer |
-| npm scope | npmjs.com → your org | the `@vue-brace` scope has to exist and the publishing account needs write access to it — otherwise rename the packages into a scope it owns |
+| npm scope | — | nothing to create: `@cockernutx` is the publishing account's username, so npm gives it that scope automatically. An org named instead would have to be created and the packages renamed into it. |
 | Marketplace publisher | marketplace.visualstudio.com → Manage publishers | a publisher named `vue-brace`, matching `publisher` in the extension manifest |
 | Trusted publishing | that publisher → Trusted Publishing | repository `strawberyy-coconut/vue-brace`, workflow `extension.yml`. This is what `vsce publish --oidc` exchanges for a session token, so no PAT is stored |
 | Workflow permissions | Settings → Actions → General | "Read repository contents" is enough: each workflow declares the permissions it needs, and only the extension publish asks for `id-token: write` |
@@ -79,8 +79,9 @@ tag. `scripts/check-tag.ts` refuses the run if the tag and the manifests disagre
 
 ## Still to fill in before the first publish
 
-- **Ownership.** The `@vue-brace` npm scope and the `vue-brace` Marketplace publisher have to
-  exist and belong to whoever publishes. `publisher` is already set in the extension manifest, and
+- **Ownership.** `@cockernutx` is the account's own username scope, so npm needs nothing created;
+  the Marketplace publisher `cockernutx` has to be claimed on the Marketplace (Manage publishers)
+  before the first extension publish. `publisher` is already set in the extension manifest, and
   `repository` / `homepage` / `bugs` are filled in (including the monorepo `directory`, so npm links
   to the right folder and `vsce` stops asking).
 - **LICENSE holder.** The three `LICENSE` files say "vue-brace contributors". Put a real name or

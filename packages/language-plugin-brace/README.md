@@ -1,4 +1,4 @@
-# @vue-brace/language-plugin-brace
+# @cockernutx/language-plugin-brace
 
 Volar / Vue language tools plugin for `lang="brace"` templates.
 
@@ -20,7 +20,7 @@ template loses hover, completions and diagnostics, and the only trace is a warni
 Vue Language Server output channel:
 
 ```
-[Vue] Resolve plugin path failed: @vue-brace/language-plugin-brace SyntaxError: …
+[Vue] Resolve plugin path failed: @cockernutx/language-plugin-brace SyntaxError: …
 ```
 
 This is the failure mode this package was written in, and it is worth knowing because it
@@ -39,7 +39,7 @@ the language server only loads plugins at startup.
 // tsconfig.app.json
 {
   "vueCompilerOptions": {
-    "plugins": ["@vue-brace/language-plugin-brace"]
+    "plugins": ["@cockernutx/language-plugin-brace"]
   }
 }
 ```

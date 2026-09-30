@@ -1,7 +1,7 @@
 import { config, flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import { BraceEmpty, BraceTry } from '@vue-brace/brace-template'
+import { BraceEmpty, BraceTry } from '@cockernutx/brace-template'
 
 import DynamicTag from './DynamicTag.vue'
 import IfFor from './IfFor.vue'

@@ -10,8 +10,8 @@
  *
  * Usage: deno run -A scripts/brace-synth.ts <file.vue> [needle]
  */
-import { compileBraceWithMap } from '@vue-brace/brace-template/compile'
-import { createOffsetMapper } from '@vue-brace/brace-template/mapper'
+import { compileBraceWithMap } from '@cockernutx/brace-template/compile'
+import { createOffsetMapper } from '@cockernutx/brace-template/mapper'
 
 const file = Deno.args.find((arg) => !arg.startsWith('--'))
 const needle = Deno.args.find((arg) => arg.startsWith('--text='))?.slice('--text='.length) ?? '.length'

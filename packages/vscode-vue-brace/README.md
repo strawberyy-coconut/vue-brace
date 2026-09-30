@@ -10,7 +10,7 @@ SFCs. Grammar only — there is no activation code, no language server and no ru
 | Block highlighting | this extension | hands `<template lang="brace">` content to the brace grammar |
 | `{{ … }}` | this extension | scopes interpolations itself; Volar's interpolation grammar never reaches a custom scope |
 | `:prop`, `@click`, `v-` | this extension | re-injects Volar's directive grammar into the brace scope |
-| Language features | `@vue-brace/language-plugin-brace` | completions, hover, navigation, diagnostics inside brace templates |
+| Language features | `@cockernutx/language-plugin-brace` | completions, hover, navigation, diagnostics inside brace templates |
 
 ### Highlighting is a grammar-injection problem
 
@@ -52,7 +52,7 @@ extension directory and reloading the window:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
-      /root/.vscode-server/extensions/vue-brace.vscode-vue-brace-0.1.0
+      /root/.vscode-server/extensions/cockernutx.vscode-vue-brace-0.1.0
 ```
 
 The folder name must be `<publisher>.<name>-<version>` — it has to match this package's

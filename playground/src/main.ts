@@ -1,7 +1,7 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
-import { installBrace } from '@vue-brace/brace-template'
+import { installBrace } from '@cockernutx/brace-template'
 import App from './App.vue'
 import router from './router'
 

@@ -17,7 +17,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
-    "@vue-brace/brace-template": "workspace:*",
+    "@cockernutx/brace-template": "workspace:*",
     "vue": "catalog:",
     "vue-router": "^5.3.1"
   },

@@ -61,7 +61,7 @@ map, so preserving line count is what keeps positions pointing at the original s
 `<script setup>`, so `BraceTry` must be registered globally:
 
 ```ts
-import { installBrace } from '@vue-brace/brace-template'
+import { installBrace } from '@cockernutx/brace-template'
 installBrace(app)
 ```
 
@@ -99,7 +99,7 @@ Beyond that, language features work as soon as the project declares the plugin, 
 `playground/tsconfig.app.json` already does:
 
 ```jsonc
-{ "vueCompilerOptions": { "plugins": ["@vue-brace/language-plugin-brace"] } }
+{ "vueCompilerOptions": { "plugins": ["@cockernutx/language-plugin-brace"] } }
 ```
 
 The highlighting extension has to be installed into the VS Code server running *inside*
@@ -107,7 +107,7 @@ the dev container:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
-      /root/.vscode-server/extensions/vue-brace.vscode-vue-brace-0.1.0
+      /root/.vscode-server/extensions/cockernutx.vscode-vue-brace-0.1.0
 ```
 
 then **Developer: Reload Window**. See `packages/vscode-vue-brace/README.md` for details and

@@ -8,7 +8,7 @@
   // Caveat: `vue-tsc` cannot run under Deno, so this is only exercised by the VS Code
   // extension here — see the repository README.
   "vueCompilerOptions": {
-    "plugins": ["@vue-brace/language-plugin-brace"]
+    "plugins": ["@cockernutx/language-plugin-brace"]
   },
   "compilerOptions": {
     // Extra safety for array and object lookups, but may have false positives.

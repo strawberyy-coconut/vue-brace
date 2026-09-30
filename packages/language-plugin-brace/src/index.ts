@@ -1,7 +1,7 @@
 import type { VueLanguagePlugin } from '@vue/language-core'
-import { compileBraceWithMap } from '@vue-brace/brace-template/compile'
-import { createOffsetMapper, type OffsetMapper } from '@vue-brace/brace-template/mapper'
-import { BRACE_LANG } from '@vue-brace/brace-template/preprocessor'
+import { compileBraceWithMap } from '@cockernutx/brace-template/compile'
+import { createOffsetMapper, type OffsetMapper } from '@cockernutx/brace-template/mapper'
+import { BRACE_LANG } from '@cockernutx/brace-template/preprocessor'
 
 /**
  * Apply `visit` to every object in the tree, once.
@@ -166,7 +166,7 @@ function alignVForPatterns(patterns: VForPattern[], template: string): void {
  *
  * ```jsonc
  * // tsconfig.json
- * { "vueCompilerOptions": { "plugins": ["@vue-brace/language-plugin-brace"] } }
+ * { "vueCompilerOptions": { "plugins": ["@cockernutx/language-plugin-brace"] } }
  * ```
  */
 const plugin: VueLanguagePlugin = ({ modules }) => {
@@ -187,7 +187,7 @@ const plugin: VueLanguagePlugin = ({ modules }) => {
   type TemplateAst = ReturnType<typeof compileTemplate>
 
   return {
-    name: '@vue-brace/language-plugin-brace',
+    name: '@cockernutx/language-plugin-brace',
     // `validVersions` is [2, 2.1, 2.2]; anything else makes language-core drop the plugin
     // with only a console warning.
     version: 2.2,

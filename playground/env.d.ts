@@ -8,7 +8,7 @@
  * visible to anyone reading the app. Without a declaration the tag is an unknown component, and
  * `@catch (e, retry)` bindings are typed `any`.
  */
-import type { BraceEmpty, BraceTry } from '@vue-brace/brace-template'
+import type { BraceEmpty, BraceTry } from '@cockernutx/brace-template'
 
 declare module 'vue' {
   interface GlobalComponents {

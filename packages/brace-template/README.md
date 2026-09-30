@@ -1,4 +1,4 @@
-# @vue-brace/brace-template
+# @cockernutx/brace-template
 
 Brace-delimited control flow for Vue SFC templates. See `BRACE-TEMPLATE.md` at the
 repository root for the syntax and the design rationale.
@@ -10,7 +10,7 @@ repository root for the syntax and the design rationale.
 import { createRequire } from 'node:module'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { braceTemplateOptions } from '@vue-brace/brace-template/vite'
+import { braceTemplateOptions } from '@cockernutx/brace-template/vite'
 
 const require = createRequire(import.meta.url)
 
@@ -22,7 +22,7 @@ export default defineConfig({
 ```ts
 // main.ts
 import { createApp } from 'vue'
-import { installBrace } from '@vue-brace/brace-template'
+import { installBrace } from '@cockernutx/brace-template'
 import App from './App.vue'
 
 const app = createApp(App)

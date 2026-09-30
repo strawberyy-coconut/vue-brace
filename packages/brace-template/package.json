@@ -1,5 +1,5 @@
 {
-  "name": "@vue-brace/brace-template",
+  "name": "@cockernutx/brace-template",
   "version": "0.1.0",
   "description": "Brace-delimited control flow (@if, @for, @switch, @try) for Vue SFC templates",
   "license": "MIT",

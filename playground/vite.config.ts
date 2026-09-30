@@ -5,7 +5,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-import { braceTemplateOptions } from '@vue-brace/brace-template/vite'
+import { braceTemplateOptions } from '@cockernutx/brace-template/vite'
 
 const require = createRequire(import.meta.url)
 

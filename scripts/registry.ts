@@ -10,7 +10,7 @@
  * Point npm at it with a line in `.npmrc`:
  *
  * ```ini
- * @vue-brace:registry=http://127.0.0.1:4873/
+ * @cockernutx:registry=http://127.0.0.1:4873/
  * ```
  *
  * It implements the part of the registry API that `npm install`, `npm publish` and `npm view`

@@ -21,13 +21,13 @@
     "verbatimModuleSyntax": false,
     "allowImportingTsExtensions": false,
     "rewriteRelativeImportExtensions": true,
-    // The output must `require('@vue-brace/brace-template/compile')` so Node resolves it
+    // The output must `require('@cockernutx/brace-template/compile')` so Node resolves it
     // through that package's `exports` map, which points at its own built `dist`. The
     // compiler type-checks against the declarations that build emits, so the other
     // package's sources stay out of this program. These paths affect resolution only and
     // never the emitted specifier.
     "paths": {
-      "@vue-brace/brace-template/*": ["../brace-template/dist/*.d.ts"]
+      "@cockernutx/brace-template/*": ["../brace-template/dist/*.d.ts"]
     },
     "skipLibCheck": true
   },

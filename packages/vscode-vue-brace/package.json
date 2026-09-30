@@ -3,7 +3,7 @@
   "displayName": "Vue Brace Templates",
   "description": "Syntax highlighting for lang=\"brace\" templates in Vue SFCs",
   "version": "0.1.0",
-  "publisher": "vue-brace",
+  "publisher": "cockernutx",
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"

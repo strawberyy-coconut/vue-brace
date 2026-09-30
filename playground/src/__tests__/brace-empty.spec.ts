@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import { BraceEmpty } from '@vue-brace/brace-template'
+import { BraceEmpty } from '@cockernutx/brace-template'
 
 /**
  * `@empty` renders through this component, so its emptiness test is the dialect's semantics,
