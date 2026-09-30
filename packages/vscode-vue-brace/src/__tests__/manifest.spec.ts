@@ -174,7 +174,11 @@ describe('extension manifest', () => {
     // VS Code keys the extensions directory on `<publisher>.<name>-<version>`, so the folder name
     // documented in the README has to stay derived from these fields. A mismatch loads nothing and
     // reports nothing: the grammar simply never appears.
-    expect(manifest.publisher).toBe('cockernutx')
+    //
+    // The publisher is the GitHub owner, not the npm scope: the Marketplace name is
+    // `strawberyy-coconut.vscode-vue-brace` while the packages stay under `@cockernutx`. They are
+    // two different registries' accounts, so do not "align" one to the other.
+    expect(manifest.publisher).toBe('strawberyy-coconut')
     expect(manifest.name).toBe('vscode-vue-brace')
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/)
 
