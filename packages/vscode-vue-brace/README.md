@@ -27,7 +27,7 @@ directory instead — edits then take effect on reload:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
-      /root/.vscode-server/extensions/strawberyy-coconut.vscode-vue-brace-0.1.3
+      /root/.vscode-server/extensions/strawberyy-coconut.vscode-vue-brace-0.1.4
 ```
 
 The folder name must be `<publisher>.<name>-<version>` — it has to match this package's
