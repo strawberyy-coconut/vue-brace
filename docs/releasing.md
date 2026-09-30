@@ -11,6 +11,11 @@ This is the checklist for cutting a version.
 | `@vue-brace/language-plugin-brace` | npm | the same task | `dist/` (CommonJS: the entry Volar `require()`s) plus the `index.cjs` shim |
 | `vscode-vue-brace` | VS Code Marketplace | nothing — it is grammar files and a manifest | `syntaxes/`, `language-configuration.json` |
 
+The extension ships an *allow-list* — the `files` field in its manifest — rather than a
+`.vscodeignore`: vsce rejects the two together, and an allow-list cannot leak the test fixtures,
+the scope harness or a stray `.vsix` from an earlier package. `deno task check:pack` fails if a
+`.vscodeignore` ever reappears beside a `files` field.
+
 `files` in each manifest is the shipping set, and `exports` never points at TypeScript, so a
 consumer cannot pull a `.ts` file into their build by accident. `dist/` is git-ignored: it is
 regenerated, and every publish runs the build first.

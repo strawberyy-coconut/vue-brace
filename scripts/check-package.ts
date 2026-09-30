@@ -1,16 +1,25 @@
 /**
- * Publish-readiness check: every entry point in `exports` exists, and nothing hands a consumer
- * TypeScript.
+ * Publish-readiness check: every entry point in `exports` exists, nothing hands a consumer
+ * TypeScript, and each package's shipping set is one vsce/npm can actually build.
  *
  * `npm pack --dry-run` answers a similar question, but npm is not available in this container —
- * and this catches the failure that actually matters. An `exports` target that no longer exists
+ * and this catches the failures that actually matter. An `exports` target that no longer exists
  * breaks every consumer while the repository keeps working, because the workspace resolves the
- * package to the same files that were just built. Run it after `deno task build:plugin`.
+ * package to the same files that were just built. A package carrying both `files` and a
+ * `.vscodeignore` fails at extension package time instead, on a runner, after a round trip.
+ *
+ * Run it after `deno task build:plugin`.
  */
 import { existsSync } from 'node:fs'
 
 const root = new URL('..', import.meta.url).pathname
-const packages = ['packages/brace-template', 'packages/language-plugin-brace']
+const packages = [
+  'packages/brace-template',
+  'packages/language-plugin-brace',
+  // Not published by `deno task release`, but it is shipped — by `vsce` — so it gets the same
+  // treatment for the shipping set.
+  'packages/vscode-vue-brace',
+]
 
 let failures = 0
 
@@ -19,6 +28,14 @@ for (const dir of packages) {
 
   if (manifest.files?.includes('src')) {
     console.error(`${dir}: \`files\` ships src/, which is TypeScript source`)
+    failures += 1
+  }
+
+  // vsce refuses to combine the two strategies for choosing what an extension ships, and only says
+  // so while packaging — on a runner, after a round trip. This extension uses `files`, so a
+  // `.vscodeignore` must never reappear beside it.
+  if (manifest.files && existsSync(`${root}${dir}/.vscodeignore`)) {
+    console.error(`${dir}: has both \`files\` and .vscodeignore — vsce rejects that combination`)
     failures += 1
   }
 
