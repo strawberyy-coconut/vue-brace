@@ -41,7 +41,7 @@ jobs:
         # this workflow no longer uses.
         run: npx --yes @vscode/vsce package --out vscode-vue-brace.vsix < /dev/null
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: vscode-vue-brace-vsix
           path: packages/vscode-vue-brace/vscode-vue-brace.vsix
