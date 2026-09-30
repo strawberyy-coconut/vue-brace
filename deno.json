@@ -2,9 +2,12 @@
   "workspace": ["packages/*", "playground"],
   "nodeModulesDir": "manual",
   "nodeModulesLinker": "hoisted",
+  // Pinned, not `rc`: the tag moves as soon as upstream publishes, and a fresh resolution of a
+  // version younger than 24 hours is refused by Deno's `minimumDependencyAge` default. Bump these
+  // (and the matching `overrides` in package.json) deliberately once the release is old enough.
   "catalog": {
-    "vue": "rc",
-    "@vue/compiler-dom": "rc"
+    "vue": "3.6.0-rc.9",
+    "@vue/compiler-dom": "3.6.0-rc.9"
   },
   "tasks": {
     "dev": "deno task build:plugin && deno task --cwd=playground dev",
