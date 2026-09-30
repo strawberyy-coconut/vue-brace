@@ -22,11 +22,41 @@ Then it puts the packument and the attachment, exactly as `npm publish` does —
 speaks the npm API works:
 
 ```sh
+deno task release --registry https://registry.npmjs.org --token "$NPM_TOKEN"   # the official one
 deno task release --registry https://npm.pkg.github.com --token "$NPM_TOKEN"
 deno task release --registry https://gitlab.com/api/v4/projects/<id>/packages/npm/ --token "$TOKEN"
 deno task release --local --dry-run      # pack and verify, publish nothing
 deno task release --local --tag next     # dist-tag other than `latest`
 ```
+
+`NPM_REGISTRY` in the release workflow is exactly this string, so for the official registry set the
+repository variable to `https://registry.npmjs.org`. Note that `https://www.npmjs.com` is the
+*website*, not a publish target — pointing a release at it fails in a way that reads like a network
+problem rather than a wrong URL.
+
+### The official registry
+
+Two npm-specific details are handled by the toolchain, because both are silent traps:
+
+- **Scoped names are percent-encoded in registry paths**: `@vue-brace/brace-template` is requested as
+  `@vue-brace%2fbrace-template`. That is what npm sends, and the official registry routes the
+  encoded form to publish and the unencoded form to a version lookup. Tarball URLs *inside* the
+  packument keep the slash, as every real packument does.
+- **`access: public` is sent** in the publish body. A scoped package published without it defaults to
+  *private*, which on a free plan fails with a 402 — a confusing way to learn the field exists.
+  `--access restricted` overrides it.
+
+What still has to be true outside this repository:
+
+- The account or organisation publishing must **own the `@vue-brace` scope** (or the packages have to
+  be renamed to a scope it owns).
+- `secrets.NPM_TOKEN` must be an automation token, or a granular token with publish rights for that
+  scope. Two-factor publishing settings on the account apply to it as well.
+- `repository`, `homepage` and `bugs` in the manifests are what npm links from the package page;
+  they are deliberately unset until this repository has a remote (see `docs/releasing.md`).
+
+Consumers of the official registry need no `.npmrc` at all — it is the default. The `.npmrc` line
+below is for the *other* registries.
 
 A consumer points the scope at it — one line of `.npmrc` — and then installs by name and version,
 which is what their lockfile wants anyway:

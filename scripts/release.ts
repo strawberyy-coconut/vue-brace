@@ -31,6 +31,11 @@ const { values } = parseArgs({
     registry: { type: 'string' },
     token: { type: 'string' },
     tag: { type: 'string', default: 'latest' },
+    // npm's `--access`, sent in the publish body. `public` is the default on purpose: a scoped
+    // package published to the official registry defaults to *private*, which fails on a free
+    // plan with a 402 and is a confusing way to discover the flag exists. Every other registry
+    // ignores the field.
+    access: { type: 'string', default: 'public' },
     local: { type: 'boolean', default: false },
     'dry-run': { type: 'boolean', default: false },
   },
@@ -42,6 +47,16 @@ const packages = ['packages/brace-template', 'packages/language-plugin-brace']
 const registry = (
   values.local ? 'http://127.0.0.1:4873' : (values.registry ?? Deno.env.get('NPM_REGISTRY') ?? '')
 ).replace(/\/$/, '')
+
+/**
+ * A package name as it appears in a registry *path*.
+ *
+ * npm percent-encodes the scope separator: `@scope/name` is requested as `@scope%2fname`, and the
+ * official registry routes the two forms differently — the encoded form is publish and packument,
+ * the unencoded one is a version lookup — so this is not cosmetic. Tarball URLs *inside* the
+ * packument keep the slash, which is what real packuments look like.
+ */
+const pathName = (name: string) => name.replace('/', '%2f')
 
 if (!registry) {
   console.error('No registry. Pass --local, or --registry <url> (or set NPM_REGISTRY).')
@@ -131,7 +146,7 @@ function checkContents(name: string, manifest: Record<string, any>, entries: str
 
 /** npm refuses to replace a published version, and so does this — before it uploads anything. */
 async function publishedVersions(name: string): Promise<string[]> {
-  const response = await fetch(`${registry}/${name}`)
+  const response = await fetch(`${registry}/${pathName(name)}`)
   if (!response.ok) return []
   const packument = await response.json()
   return Object.keys(packument.versions ?? {})
@@ -160,11 +175,18 @@ async function publish(dir: string): Promise<void> {
     // stores, and a consumer has no use for them.
     const published = { ...manifest }
     delete published.devDependencies
-    const integrity = `sha512-${base64(await crypto.subtle.digest('SHA-512', bytes))}`
+
+    // `readFile` gives a `Uint8Array<ArrayBufferLike>`, which TypeScript 6 will not accept as a
+    // `BufferSource`; copying into a plainly-typed buffer of exactly this length is one line and
+    // avoids a cast (and any chance of hashing a view's slack bytes).
+    const digestInput = new Uint8Array(bytes.length)
+    digestInput.set(bytes)
+    const integrity = `sha512-${base64(await crypto.subtle.digest('SHA-512', digestInput))}`
     const body = {
       _id: name,
       name,
       description: manifest.description,
+      access: values.access,
       'dist-tags': { [values.tag]: version },
       versions: {
         [version]: {
@@ -185,7 +207,7 @@ async function publish(dir: string): Promise<void> {
       },
     }
 
-    const response = await fetch(`${registry}/${name}`, {
+    const response = await fetch(`${registry}/${pathName(name)}`, {
       method: 'PUT',
       headers: {
         'content-type': 'application/json',
