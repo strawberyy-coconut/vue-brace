@@ -37,6 +37,13 @@
     "test:watch": "vitest"
   },
   "keywords": ["vue", "template", "compiler", "sfc", "control-flow"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/strawberyy-coconut/vue-brace.git",
+    "directory": "packages/brace-template"
+  },
+  "homepage": "https://github.com/strawberyy-coconut/vue-brace#readme",
+  "bugs": "https://github.com/strawberyy-coconut/vue-brace/issues",
   "peerDependencies": {
     "vue": "^3.5.0 || >=3.6.0-0"
   },

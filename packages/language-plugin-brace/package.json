@@ -19,6 +19,13 @@
     "test:watch": "vitest"
   },
   "keywords": ["vue", "volar", "language-server", "plugin", "template"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/strawberyy-coconut/vue-brace.git",
+    "directory": "packages/language-plugin-brace"
+  },
+  "homepage": "https://github.com/strawberyy-coconut/vue-brace#readme",
+  "bugs": "https://github.com/strawberyy-coconut/vue-brace/issues",
   "dependencies": {
     "@vue-brace/brace-template": "^0.1.0",
     "@vue/language-core": "^3.3.11"

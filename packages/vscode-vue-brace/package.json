@@ -10,6 +10,13 @@
   },
   "categories": ["Programming Languages"],
   "keywords": ["vue", "brace", "template"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/strawberyy-coconut/vue-brace.git",
+    "directory": "packages/vscode-vue-brace"
+  },
+  "homepage": "https://github.com/strawberyy-coconut/vue-brace#readme",
+  "bugs": "https://github.com/strawberyy-coconut/vue-brace/issues",
   "files": ["syntaxes", "language-configuration.json", "README.md", "LICENSE"],
   "scripts": {
     "test": "vitest run",

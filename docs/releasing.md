@@ -61,10 +61,9 @@ tag. `scripts/check-tag.ts` refuses the run if the tag and the manifests disagre
 ## Still to fill in before the first publish
 
 - **Ownership.** The `@vue-brace` npm scope and the `vue-brace` Marketplace publisher have to
-  exist and belong to whoever publishes. `publisher` is already set in the extension manifest.
-- **`repository`.** Deliberately absent from all three manifests because this repository has no
-  remote yet. Add `repository`, `homepage` and `bugs` once it has one; npm shows them on the
-  package page, and the Marketplace uses them too.
+  exist and belong to whoever publishes. `publisher` is already set in the extension manifest, and
+  `repository` / `homepage` / `bugs` are filled in (including the monorepo `directory`, so npm links
+  to the right folder and `vsce` stops asking).
 - **LICENSE holder.** The three `LICENSE` files say "vue-brace contributors". Put a real name or
   organisation there if the licence should name one.
 
