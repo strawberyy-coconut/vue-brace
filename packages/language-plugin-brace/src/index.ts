@@ -1,16 +1,7 @@
-import type { CompilerError, RootNode } from '@vue/compiler-dom'
 import type { VueLanguagePlugin } from '@vue/language-core'
 import { compileBraceWithMap } from '@vue-brace/brace-template/compile'
 import { createOffsetMapper, type OffsetMapper } from '@vue-brace/brace-template/mapper'
 import { BRACE_LANG } from '@vue-brace/brace-template/preprocessor'
-
-function asCompilerError(error: unknown): CompilerError {
-  return {
-    name: 'BraceCompileError',
-    message: error instanceof Error ? error.message : String(error),
-    code: 0,
-  } as unknown as CompilerError
-}
 
 /**
  * Apply `visit` to every object in the tree, once.
@@ -181,6 +172,20 @@ function alignVForPatterns(patterns: VForPattern[], template: string): void {
 const plugin: VueLanguagePlugin = ({ modules }) => {
   const { codeFeatures, compileTemplate } = modules['@vue/language-core']
 
+  /**
+   * The AST type `compileTemplate` actually returns.
+   *
+   * Deliberately *derived* rather than imported from `@vue/compiler-dom`. This package can resolve
+   * a different copy of that module than the language-core instance Volar passes in: language-core
+   * asks for `@vue/compiler-dom@^3.5.0`, a prerelease pin cannot satisfy it, so npm (and Deno) nest
+   * a second, stable copy — and two `RootNode` types from two copies are unrelated, which is what
+   * made the plugin build fail in CI while passing against a deduplicated local `node_modules`.
+   *
+   * A published plugin meets that layout in consumers' trees as well, so the types have to come
+   * from the instance we were handed.
+   */
+  type TemplateAst = ReturnType<typeof compileTemplate>
+
   return {
     name: '@vue-brace/language-plugin-brace',
     // `validVersions` is [2, 2.1, 2.2]; anything else makes language-core drop the plugin
@@ -221,22 +226,36 @@ const plugin: VueLanguagePlugin = ({ modules }) => {
       try {
         compiled = compileBraceWithMap(template)
       } catch (error) {
-        // A malformed block must surface as a diagnostic, never as a dead language server.
-        options.onError?.(asCompilerError(error))
+        // A malformed block must surface as a diagnostic, never as a dead language server. The
+        // cast names the error type of *this* options object rather than one imported from
+        // `@vue/compiler-dom`, for the reason explained at `TemplateAst`.
+        options.onError?.({
+          name: 'BraceCompileError',
+          message: error instanceof Error ? error.message : String(error),
+          code: 0,
+        } as unknown as Parameters<NonNullable<typeof options.onError>>[0])
         return { ast: compileTemplate('', options), code: '', preamble: '' }
       }
 
       const toSourceOffset = createOffsetMapper(template, compiled.code, compiled.lines)
 
-      const remap = (error: CompilerError): CompilerError => {
-        if (error.loc) {
-          error.loc.start.offset = toSourceOffset(error.loc.start.offset)
-          error.loc.end.offset = toSourceOffset(error.loc.end.offset)
+      /**
+       * Move a diagnostic's location into brace coordinates.
+       *
+       * Generic on purpose: the identity of Volar's warning and error types is Volar's business,
+       * not ours, and a signature naming them would reintroduce the coupling this file avoids.
+       */
+      const remap = <T extends { loc?: { start: { offset: number }; end: { offset: number } } }>(
+        diagnostic: T,
+      ): T => {
+        if (diagnostic.loc) {
+          diagnostic.loc.start.offset = toSourceOffset(diagnostic.loc.start.offset)
+          diagnostic.loc.end.offset = toSourceOffset(diagnostic.loc.end.offset)
         }
-        return error
+        return diagnostic
       }
 
-      const ast: RootNode = compileTemplate(compiled.code, {
+      const ast: TemplateAst = compileTemplate(compiled.code, {
         ...options,
         onWarn: (warning) => options.onWarn?.(remap(warning)),
         onError: (error) => options.onError?.(remap(error)),
