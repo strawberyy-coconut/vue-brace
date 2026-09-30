@@ -1,54 +1,20 @@
 # vscode-vue-brace
 
-VS Code extension providing **syntax highlighting** for `lang="brace"` templates in Vue
-SFCs. Grammar only — there is no activation code, no language server and no runtime.
+VS Code extension providing **syntax highlighting** for `lang="brace"` templates in Vue SFCs.
+Grammar only — no activation code, no language server, no runtime.
 
-## Why these pieces exist
+| Highlighted by this extension | Language features come from |
+| --- | --- |
+| the `brace` block, `{{ … }}`, and Vue's `:prop` / `@click` / `v-` | [`@cockernutx/language-plugin-brace`](../language-plugin-brace) — completions, hover, navigation, diagnostics |
 
-| | Provided by | Does |
-| --- | --- | --- |
-| Block highlighting | this extension | hands `<template lang="brace">` content to the brace grammar |
-| `{{ … }}` | this extension | scopes interpolations itself; Volar's interpolation grammar never reaches a custom scope |
-| `:prop`, `@click`, `v-` | this extension | re-injects Volar's directive grammar into the brace scope |
-| Language features | `@cockernutx/language-plugin-brace` | completions, hover, navigation, diagnostics inside brace templates |
-
-### Highlighting is a grammar-injection problem
-
-It is tempting to assume that registering a language id and a grammar is enough, because
-Volar's `resolveCommonLanguageId` passes an unknown template `lang` through unchanged. It is
-not, and the failure is silent — so it is worth spelling out.
-
-The file you are looking at is highlighted by Volar's own `text.html.vue` grammar (the `.vue`
-file's language is `vue`). Embedded documents — the ones `getEmbeddedCodes` produces — drive
-*language features* and semantic tokens, not the base highlighting of the visible file.
-
-Volar's `text.html.vue` carries **hardcoded block rules per template language**, each
-delegating the block's content to a scope by name. The `pug` one, for example, matches a tag
-whose attributes contain `lang="pug"`, and then scopes everything between `>` and `</` as
-`text.pug` with `include: text.pug`. `html`, `pug`, `stylus` and others all have such a rule.
-
-A language Volar does not know — `brace` — has no rule, so the block falls through to
-`text.html.derivative` and every brace construct renders as plain HTML text.
-
-Two injections fix that, both contributed by this extension:
-
-- **`syntaxes/brace.vue-block.json`** injects the missing block rule into `text.html.vue`,
-  delegating the content to `text.html.brace`.
-- **`syntaxes/brace.vue-support.json`** re-injects `vue.directives` into `text.html.brace`,
-  because Volar only lists `text.html.vue`, `text.html.markdown`, `text.html.derivative` and
-  `text.html.pug` as injection targets. Without it, `:prop`, `@click` and `v-` inside a brace
-  template would fall back to plain HTML attributes.
-
-The block also declares `unbalancedBracketScopes` for its delimiters. A brace delimiter is
-unbalanced by design — `@if (x) {` opens a brace that closes several lines later — and
-without the exemption VS Code colours every one of them as an unmatched bracket, which is
-what the `.vue` language's own grammar does for `meta.brace.angle` and friends.
+Why highlighting here needs injected grammars rather than just a language registration is
+written up in [`docs/internals/volar-and-editor-notes.md`](../../docs/internals/volar-and-editor-notes.md).
 
 ## Installing
 
-This is a **development-time extension for this workspace**, not a published one. The VS
-Code server runs inside the dev container, so install it there by linking it into the
-extension directory and reloading the window:
+This extension is sideloaded into the dev container rather than installed from the Marketplace:
+the VS Code server runs *inside* the container, so link the package into its extension directory
+and reload the window:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
@@ -64,9 +30,6 @@ file with `lang="brace"` and use **Developer: Inspect Editor Tokens and Scopes**
 
 To remove it, delete the symlink and reload.
 
-Publishing it for real would need `vsce package`, which needs Node — not available in this
-container.
-
 ## What is highlighted
 
 | Construct | Example |
@@ -79,45 +42,12 @@ container.
 | Dynamic tags | `<{expr}>`, `<{expr} attr="x" />`, `</{expr}>` |
 | Interpolation | `{{ … }}` |
 
-Everything else is delegated to **Vue's own tag rules followed by VS Code's HTML grammar** —
-the same order Volar's `html-stuff` uses — so markup inside a brace block highlights as it does
-in an ordinary `<template>`. Expressions delegate to `source.ts#expression`, the same grammar
-Vue's directive and interpolation rules use. `@for` clauses (`index i`, `key item.id`) are not
-valid JavaScript, so they only highlight loosely. Dynamic tags (`<{expr} attr="x">`) hand
-their attributes to the rules Vue's own tag rule uses (`text.html.vue#vue-directives` and
-`text.html.basic#attribute`).
-
-Why the order matters, and why the whole grammar must not be included:
-
-- `text.html.basic` alone scopes any tag whose name has no hyphen — every component — as
-  `invalid.illegal.unrecognized-tag.html`, so `<FragileChild>` came out painted with the
-  theme's error colour. Vue's `#capitalized-tag` and `#self-closing-tag` know unrecognized
-  tags are components, which is why they are included first.
-- Including **`text.html.vue` as a whole** is a reference cycle: this extension injects the
-  block rule *into* `text.html.vue`, so that grammar reaches `text.html.brace` and back. VS
-  Code then loses the markup scoping entirely and the block renders as plain text. Only
-  repository includes (`text.html.vue#capitalized-tag`) are safe — they pull in one rule.
-  `manifest.spec.ts` asserts the graph stays acyclic and names the cycle if it does not.
-
-### Vue syntax in a brace template
-
-Volar injects `vue.directives` and `vue.interpolations` into exactly four scopes —
-`text.html.vue`, `text.html.markdown`, `text.html.derivative` and `text.pug` (see
-`contributes.grammars` in `Vue.volar`'s `package.json`). A brace template has its own scope,
-so Vue's `:prop`, `@click` and `v-` highlighting would be missing and those attributes would
-look like plain HTML.
-
-`syntaxes/brace.vue-support.json` therefore re-injects `vue.directives` into
-`text.html.brace`. This is the same mechanism Volar uses for Pug, just declared from our
-side.
-
-Interpolation is the exception, and it is worth being precise because the obvious reading is
-wrong: including Volar's `vue.interpolations` grammar has no effect, because that grammar's
-rules live in `text.html.vue` and its own selectors are scoped to `text.html.derivative` and
-friends. Tokenising a brace template confirms it — `{{` comes back as
-`punctuation.definition.interpolation.begin.brace`, i.e. our rule, not Volar's. The
-`brace-interpolation` rule in `syntaxes/brace.tmLanguage.json` is what highlights `{{ … }}`,
-and it also has to be, since we cannot add `text.html.brace` to Volar's injection list.
+Everything else is delegated to **Vue's own tag rules followed by VS Code's HTML grammar** — the
+same order Volar's `html-stuff` uses — so markup inside a brace block highlights like it does in
+an ordinary `<template>`, and expressions use `source.ts#expression`. `@for` clauses (`index i`,
+`key item.id`) are not valid JavaScript, so they highlight loosely. Vue's rules have to come
+first, and no grammar may include `text.html.vue` as a whole; `manifest.spec.ts` asserts the
+graph stays acyclic, and the internals note explains both traps.
 
 ## Troubleshooting
 
@@ -155,32 +85,9 @@ deno task scopes --theme theme.json     # resolve each scope through a theme, an
 
 This reproduces the real pipeline — block injection, directive injection and Vue.volar's own
 grammar. **Scopes alone are not highlighting:** a scope nothing matches renders as plain text,
-so pass `--theme` with the theme you are looking at (VS Code theme files are JSON; a
-client-side theme extension keeps its copy on your machine, not in this container) and the
-report shows the colour each token actually gets.
+so pass `--theme` with a theme JSON file to see the colour each token actually gets.
 
-VS Code's built-in grammars (`html`, `typescript`, `css`) ship inside the editor, so they are
-not on disk in a dev container and markup or expressions show no scope until you fetch them.
-The script looks in `$BRACE_GRAMMARS` (default `/tmp/vscode-grammars`) and prints which
-grammars it stubbed, so the report always says how much of itself to trust:
-
-```sh
-mkdir -p /tmp/vscode-grammars && cd /tmp/vscode-grammars
-for f in \
-  extensions/html/syntaxes/html.tmLanguage.json \
-  extensions/html/syntaxes/html-derivative.tmLanguage.json \
-  extensions/typescript-basics/syntaxes/TypeScript.tmLanguage.json \
-  extensions/javascript/syntaxes/JavaScript.tmLanguage.json \
-  extensions/css/syntaxes/css.tmLanguage.json
-do
-  deno eval "await Deno.writeTextFile('$(basename $f)', await (await fetch('https://raw.githubusercontent.com/microsoft/vscode/main/$f')).text())"
-done
-```
-
-One blind spot worth knowing before you "fix" something: the script loads `text.html.vue` as
-the document grammar and reaches `text.html.brace` through the block injection, which makes
-`text.html.vue` include *itself*. `vscode-textmate` drops that include, so markup inside the
-block comes back unscoped and the script cannot tell you whether the include works. VS Code
-compiles each grammar's rules once, so the include resolves there. To test the include, load
-`text.html.brace` as the document grammar with `createRegistry(false)` — that is what the
-component-tag test in `vue-block.spec.ts` does.
+VS Code's built-in grammars (`html`, `typescript`, `css`) ship inside the editor, so they are not
+on disk in a dev container. The script looks for fetched copies in `$BRACE_GRAMMARS` (default
+`/tmp/vscode-grammars`) and prints which grammars it stubbed, so the report says how much of
+itself to trust.

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { compileTemplate } from 'vue/compiler-sfc'
 import { compileBrace, compileBraceWithMap } from '../compile.ts'
 
-/** The worked example from BRACE-TEMPLATE.md, and the output it documents. */
+/** The worked example from the package README, and the output it documents. */
 const SHOP = `<section class="shop">
   @if (status === 'loading') {
     <p class="muted">Loading…</p>
