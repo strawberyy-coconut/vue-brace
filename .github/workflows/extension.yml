@@ -1,0 +1,66 @@
+name: Extension
+
+# The VS Code extension is the one artefact this repository cannot build for itself: `vsce` needs
+# Node, and the dev container has none by design. A runner has it, so packaging lives here.
+#
+# Publishing needs a trusted publishing policy set up on the Marketplace for this repository and
+# workflow (Publishers → your publisher → Trusted Publishing). No Personal Access Token is stored:
+# `--oidc` exchanges a short-lived GitHub token for a Marketplace session. Without the policy the
+# publish step fails loudly, which is the intended behaviour — a silent skip would leave the
+# extension behind the packages.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # `@vscode/vsce` requires Node >= 22.
+          node-version: 22
+
+      - name: Package
+        working-directory: packages/vscode-vue-brace
+        # `< /dev/null` so nothing can sit waiting for an answer: `vsce` prompts when a manifest
+        # field it wants is missing, and a prompt on a runner is a step that times out.
+        run: npx --yes @vscode/vsce package --out vscode-vue-brace.vsix < /dev/null
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vscode-vue-brace-vsix
+          path: packages/vscode-vue-brace/vscode-vue-brace.vsix
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # what `--oidc` exchanges for a Marketplace session token
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.7
+          cache: true
+
+      - name: Check the tag against the manifests
+        run: deno run -A scripts/check-tag.ts "$GITHUB_REF_NAME"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Publish
+        working-directory: packages/vscode-vue-brace
+        run: npx --yes @vscode/vsce publish --oidc < /dev/null

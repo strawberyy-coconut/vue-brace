@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# A force-push or a follow-up commit cancels the run it superseded.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          # The version this repository is verified against. `cache` keys on `deno.lock`, so a
+          # dependency change re-downloads and a source change does not.
+          deno-version: v2.9.7
+          cache: true
+
+      - name: Install workspace dependencies
+        # `--frozen` fails when `deno.lock` is out of date, which is the point: a green build from
+        # a lockfile nobody updated is worse than a red one.
+        run: deno install --frozen
+
+      - name: Lint
+        # `deno task lint` runs with `--fix`, and a CI run that silently fixes style issues proves
+        # nothing. Anything it had to change shows up as a dirty tree.
+        run: |
+          deno task lint
+          git diff --exit-code
+
+      - name: Test
+        # Builds the plugin, then runs all four suites, the type-level checks and the package
+        # shape check. Note: three of the vscode-vue-brace tests tokenise real Vue.volar grammars and
+        # skip themselves when that extension is not installed, which is the case on a runner.
+        run: deno task test
+
+      - name: Build the playground
+        # Different code path from the dev server: the production build inlines the template
+        # through `compileScript` instead of serving it as a virtual module.
+        run: deno task build

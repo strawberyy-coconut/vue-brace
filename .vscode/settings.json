@@ -1,0 +1,16 @@
+{
+  // Component tags (`<FragileChild>`, `<AsyncChart>`) are coloured by Volar's own
+  // `vue-component-semantic-tokens` language-service plugin, which emits a semantic token of type
+  // `component`. That type wins over the grammar's `entity.name.tag`, so the theme's orange
+  // replaces the green our grammar produces for every other tag.
+  //
+  // It is a Volar token, not something the brace compiler, grammar or language plugin can
+  // suppress or recolour — the provider's code is `legend: { tokenTypes: ['component'] }` — so
+  // the only place to change it is here or in the theme. This maps it back to the same green the
+  // grammar uses for the rest of the markup. Delete this block to get the theme's colour back.
+  "editor.semanticTokenColorCustomizations": {
+    "rules": {
+      "component": { "foreground": "#8EC07C", "bold": true }
+    }
+  }
+}

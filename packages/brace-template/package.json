@@ -1,0 +1,48 @@
+{
+  "name": "@vue-brace/brace-template",
+  "version": "0.1.0",
+  "description": "Brace-delimited control flow (@if, @for, @switch, @try) for Vue SFC templates",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "default": "./dist/esm/index.js"
+    },
+    "./compile": {
+      "types": "./dist/compile.d.ts",
+      "require": "./dist/compile.js",
+      "default": "./dist/esm/compile.js"
+    },
+    "./mapper": {
+      "types": "./dist/mapper.d.ts",
+      "require": "./dist/mapper.js",
+      "default": "./dist/esm/mapper.js"
+    },
+    "./preprocessor": {
+      "types": "./dist/preprocessor.d.ts",
+      "require": "./dist/preprocessor.js",
+      "default": "./dist/esm/preprocessor.js"
+    },
+    "./vite": {
+      "types": "./dist/esm/vite.d.ts",
+      "default": "./dist/esm/vite.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "prepack": "deno task --cwd=../.. build:plugin",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["vue", "template", "compiler", "sfc", "control-flow"],
+  "peerDependencies": {
+    "vue": "^3.5.0 || >=3.6.0-0"
+  },
+  "devDependencies": {
+    "source-map-js": "^1.2.1",
+    "vitest": "^5.0.2",
+    "vue": "catalog:"
+  }
+}

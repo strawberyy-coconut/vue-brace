@@ -1,0 +1,8 @@
+{
+  "scopeName": "brace.vue-support",
+  "comment": "Volar injects its Vue directive grammar only into text.html.vue, text.html.markdown, text.html.derivative and text.pug (see `contributes.grammars` in Vue.volar's package.json). A brace template has its own scope, so without this `:prop`, `@click` and `v-` render as plain HTML attributes. Interpolation is deliberately absent: including `vue.interpolations` is a no-op here — tokenising a brace template with it included still resolves `{{` to the `brace-interpolation` rule in the brace grammar, so that rule is what highlights interpolations.",
+  "injectionSelector": "text.html.brace",
+  "patterns": [
+    { "include": "vue.directives" }
+  ]
+}

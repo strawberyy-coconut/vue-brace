@@ -1,0 +1,8 @@
+# `vsce` packages everything in the folder unless it is excluded here, which would ship the test
+# fixtures, the scope harness and the grammar-loading helpers with the extension.
+**
+!syntaxes/**
+!language-configuration.json
+!package.json
+!README.md
+!LICENSE

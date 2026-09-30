@@ -1,0 +1,15 @@
+# Overrides layered on top of ../compose.dev.yaml, the primary file (which owns the build,
+# the env file and the network mode). Only the bind mount belongs here.
+services:
+  dev:
+    volumes:
+      # Relative paths in a compose override resolve against the *project* directory — the
+      # directory of the primary file, which is the repository root — not against this file.
+      # So `..` is the repository's parent on the host, and mounting it at /workspaces is what
+      # makes the repository appear as /workspaces/vue-brace, matching `workspaceFolder` in
+      # devcontainer.json. This mount is load-bearing: remove it and the folder VS Code opens
+      # stops existing.
+      - ..:/workspaces:cached
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+ 

@@ -1,0 +1,24 @@
+{
+  "workspace": ["packages/*", "playground"],
+  "nodeModulesDir": "manual",
+  "nodeModulesLinker": "hoisted",
+  "catalog": {
+    "vue": "rc",
+    "@vue/compiler-dom": "rc"
+  },
+  "tasks": {
+    "dev": "deno task build:plugin && deno task --cwd=playground dev",
+    "build": "deno task --cwd=playground build",
+    "build:plugin": "deno run -A scripts/build-plugin.ts",
+    "check:types": "./scripts/check-types.sh",
+    "check:pack": "deno run -A scripts/check-package.ts",
+    "registry": "deno run -A scripts/registry.ts",
+    "release": "deno run -A scripts/release.ts",
+    "preview": "deno task --cwd=playground preview",
+    "type-check": "deno task --cwd=playground type-check",
+    "test": "deno task build:plugin && deno task --cwd=packages/brace-template test && deno task --cwd=packages/language-plugin-brace test && deno task --cwd=packages/vscode-vue-brace test && deno task --cwd=playground test && deno task check:types && deno task check:pack",
+    "lint": "deno task --cwd=playground lint && deno task lint:packages",
+    "lint:packages": "oxlint packages scripts",
+    "format": "deno task --cwd=playground format"
+  }
+}

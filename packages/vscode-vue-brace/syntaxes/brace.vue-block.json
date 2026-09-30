@@ -1,0 +1,24 @@
+{
+  "scopeName": "brace.vue-block",
+  "comment": "Volar's `text.html.vue` grammar has hardcoded block rules for `lang=\"html\"`, `lang=\"pug\"`, `lang=\"stylus\"` and friends, each of which delegates the block content to a scope by name (for Pug: `name: \"text.pug\"` + `include: \"text.pug\"`). There is no rule for `brace`, so a brace template would fall through to `text.html.derivative` and render as plain HTML — which is exactly what it did before this injection existed. Injecting an equivalent rule hands the block to our own grammar instead.",
+  "injectionSelector": "L:text.html.vue",
+  "patterns": [
+    {
+      "begin": "(<)(template)(\\s+[^>]*?\\blang\\s*=\\s*(['\"]?)brace\\4[^>]*?)(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html.vue" },
+        "2": { "name": "entity.name.tag.html.vue" },
+        "3": { "name": "meta.attribute-with-value.lang.html.vue" },
+        "5": { "name": "punctuation.definition.tag.end.html.vue" }
+      },
+      "end": "(</)(template)(>)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html.vue" },
+        "2": { "name": "entity.name.tag.html.vue" },
+        "3": { "name": "punctuation.definition.tag.end.html.vue" }
+      },
+      "contentName": "text.html.brace",
+      "patterns": [{ "include": "text.html.brace" }]
+    }
+  ]
+}

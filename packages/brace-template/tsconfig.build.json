@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Compiled for Node: Volar loads language plugins with `require()`, and the editor's
+    // language server is a Node process, so TypeScript source is not an option there.
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "CommonJS",
+    // `node10` is the only resolution mode that pairs with `module: CommonJS` output, and
+    // TypeScript 6 wants an explicit acknowledgement of that before it stops supporting it.
+    "moduleResolution": "node10",
+    "ignoreDeprecations": "6.0",
+    "target": "ES2022",
+    "types": [],
+    // Declarations are what lets the plugin package type-check against this build instead of
+    // pulling these sources into its own program (which would break its `rootDir`).
+    "declaration": true,
+    "sourceMap": false,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    // Source imports are written Deno-style (`./compile.ts`); those have to point at the
+    // emitted `.js` files for Node.
+    "rewriteRelativeImportExtensions": true,
+    "skipLibCheck": true
+  },
+  // Only what the Volar plugin needs at runtime: the root entry pulls in Vue components.
+  "include": ["src/compile.ts", "src/mapper.ts", "src/preprocessor.ts"]
+}

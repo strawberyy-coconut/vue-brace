@@ -1,0 +1,57 @@
+{
+  "name": "vscode-vue-brace",
+  "displayName": "Vue Brace Templates",
+  "description": "Syntax highlighting for lang=\"brace\" templates in Vue SFCs",
+  "version": "0.1.0",
+  "publisher": "vue-brace",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "keywords": ["vue", "brace", "template"],
+  "files": ["syntaxes", "language-configuration.json", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "vitest run",
+    "scopes": "deno run -A scripts/dump-scopes.ts"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "brace",
+        "aliases": ["Brace", "brace"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "brace",
+        "scopeName": "text.html.brace",
+        "path": "./syntaxes/brace.tmLanguage.json",
+        "unbalancedBracketScopes": [
+          "punctuation.section.block.begin.brace",
+          "punctuation.section.block.end.brace",
+          "punctuation.section.embedded.begin.brace",
+          "punctuation.section.embedded.end.brace",
+          "punctuation.definition.interpolation.begin.brace",
+          "punctuation.definition.interpolation.end.brace"
+        ]
+      },
+      {
+        "scopeName": "brace.vue-support",
+        "path": "./syntaxes/brace.vue-support.json",
+        "injectTo": ["text.html.brace"]
+      },
+      {
+        "scopeName": "brace.vue-block",
+        "path": "./syntaxes/brace.vue-block.json",
+        "injectTo": ["text.html.vue"]
+      }
+    ]
+  },
+  "devDependencies": {
+    "vitest": "^5.0.2",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
+  }
+}

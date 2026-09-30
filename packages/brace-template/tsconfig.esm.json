@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // The ESM build: what bundlers and Deno get. `tsconfig.build.json` (CommonJS) exists for one
+    // reason — Volar's language server is a Node process and `require()`s those entries — so the
+    // browser-facing entries (the root entry, `/vite`, and the runtime components) need this one
+    // to be importable at all.
+    "noEmit": false,
+    "outDir": "./dist/esm",
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "sourceMap": false,
+    // The sources import each other Deno-style (`./compile.ts`); those have to point at the
+    // emitted `.js` files for every consumer that is not Deno.
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true
+  },
+  // `index.ts` pulls in the compiler, mapper and preprocessor; these four are every entry the
+  // package exposes.
+  "include": ["src/index.ts", "src/vite.ts", "src/BraceTry.ts", "src/BraceEmpty.ts"]
+}

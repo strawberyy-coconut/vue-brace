@@ -1,0 +1,8 @@
+# The workflows pin `action` versions themselves; this keeps those pins moving without touching
+# the Deno dependencies, which Dependabot does not understand (`deno.lock` is not an npm lockfile).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

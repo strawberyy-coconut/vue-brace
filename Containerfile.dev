@@ -1,0 +1,4 @@
+FROM docker.io/denoland/deno:latest
+
+RUN apt update -y
+RUN apt install -y git

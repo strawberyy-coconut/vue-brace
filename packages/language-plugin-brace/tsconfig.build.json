@@ -1,0 +1,36 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Compiled for Node: Volar resolves a plugin and calls `require()` on it, in the editor
+    // as well as in `vue-tsc`. Deno can `require()` TypeScript, so serving `src/index.ts`
+    // appears to work in this container while failing in the editor — where the failure is
+    // only a warning in the language server's output channel.
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "ignoreDeprecations": "6.0",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": [],
+    // Declarations ship with the package, so a consumer's `types` condition resolves to real
+    // declarations instead of pulling these sources into their own program.
+    "declaration": true,
+    "sourceMap": false,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
+    // The output must `require('@vue-brace/brace-template/compile')` so Node resolves it
+    // through that package's `exports` map, which points at its own built `dist`. The
+    // compiler type-checks against the declarations that build emits, so the other
+    // package's sources stay out of this program. These paths affect resolution only and
+    // never the emitted specifier.
+    "paths": {
+      "@vue-brace/brace-template/*": ["../brace-template/dist/*.d.ts"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["src/index.ts"]
+}
+

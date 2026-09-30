@@ -1,0 +1,70 @@
+name: Release
+
+# Tag a commit and the packages in it are published:
+#
+#   deno task registry                    # or your registry, for a rehearsal
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# Needs one repository variable and one secret (Settings → Secrets and variables → Actions):
+#
+#   vars.NPM_REGISTRY   the registry to publish to, e.g. https://npm.pkg.github.com
+#   secrets.NPM_TOKEN   its publish token (omit if the registry allows anonymous publish)
+#
+# The tag must match the version in every manifest, so a mistyped tag cannot publish 0.1.0 as
+# 0.2.0 — `scripts/check-tag.ts` checks the packages and the cross-package dependency range.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version to publish, matching the manifests (e.g. v0.1.0)
+        required: true
+      dry_run:
+        description: Build, pack and check without publishing
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.7
+          cache: true
+
+      - run: deno install --frozen
+
+      - name: Check the tag against the manifests
+        env:
+          # A tag push sets GITHUB_REF_NAME to the tag; a manual run supplies it.
+          RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+        run: deno run -A scripts/check-tag.ts "$RELEASE_TAG"
+
+      - name: Test
+        run: deno task test
+
+      - name: Publish (dry run)
+        if: ${{ inputs.dry_run }}
+        env:
+          NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
+        run: |
+          if [ -z "$NPM_REGISTRY" ]; then
+            echo "Set the repository variable NPM_REGISTRY first (see docs/distribution.md)."
+            exit 1
+          fi
+          deno task release --registry "$NPM_REGISTRY" --dry-run
+
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        env:
+          NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: deno task release --registry "$NPM_REGISTRY" --token "$NPM_TOKEN"

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Brace",
+  "scopeName": "text.html.brace",
+  "comment": "Syntax highlighting for lang=\"brace\" Vue SFC templates. Every delimiter is on its own line, so the brace rules anchor to line starts; everything else is a Vue template, included last so these rules win. The markup rules mirror the order of Vue.volar's own `html-stuff`: Vue's rules for component tags first, then `text.html.derivative`, then `text.html.basic`. Vue's rules must come first because `text.html.basic` scopes any tag whose name has no hyphen as `invalid.illegal.unrecognized-tag`, so every component would be painted with the theme's error colour. The whole `text.html.vue` grammar must NOT be included: the block rule in brace.vue-block.json is injected *into* it, so including it from here is a reference cycle and the markup loses all scoping.",
+  "patterns": [
+    { "include": "#brace-comment" },
+    { "include": "#brace-continuation" },
+    { "include": "#brace-for" },
+    { "include": "#brace-opener" },
+    { "include": "#brace-arm" },
+    { "include": "#brace-close" },
+    { "include": "#brace-dynamic-tag" },
+    { "include": "#brace-interpolation" },
+    { "include": "text.html.vue#self-closing-tag" },
+    { "include": "text.html.vue#capitalized-tag" },
+    { "include": "text.html.derivative" },
+    { "include": "text.html.basic" }
+  ],
+  "repository": {
+    "brace-comment": {
+      "comment": "Anchored to a line start so `https://example.com` in body text stays text.",
+      "match": "^\\s*(//)(.*)$",
+      "captures": {
+        "1": { "name": "punctuation.definition.comment.begin.brace" },
+        "2": { "name": "comment.line.double-slash.brace" }
+      }
+    },
+    "brace-continuation": {
+      "comment": "} @else if (…) {   } @else {   } @empty {   } @pending {   } @catch (…) {",
+      "match": "^\\s*(\\})\\s*(@)(else|empty|pending|catch)\\b(?:\\s+(if)\\b)?\\s*(\\([^)]*\\))?\\s*(\\{)",
+      "captures": {
+        "1": { "name": "punctuation.section.block.end.brace" },
+        "2": { "name": "punctuation.definition.keyword.brace" },
+        "3": { "name": "keyword.control.brace" },
+        "4": { "name": "keyword.control.brace" },
+        "5": { "patterns": [{ "include": "#brace-expression" }] },
+        "6": { "name": "punctuation.section.block.begin.brace" }
+      }
+    },
+    "brace-for": {
+      "comment": "@for (item of items; index i; key item.id) { — separate from the other openers because `index` and `key` introduce clauses rather than naming variables. The clauses have a fixed order in the language, so they can be captured directly; a nested rule for the keywords did not apply inside a capture, and `index`/`key` came out highlighted as TypeScript variables.",
+      "match": "^\\s*(@)(for)\\s*\\(\\s*([^;]+?)\\s*(?:;\\s*(index)\\s+([^;]+?))?\\s*(?:;\\s*(key)\\s+([^)]+?))?\\s*\\)\\s*(\\{)",
+      "captures": {
+        "1": { "name": "punctuation.definition.keyword.brace" },
+        "2": { "name": "keyword.control.brace" },
+        "3": { "patterns": [{ "include": "#brace-expression" }] },
+        "4": { "name": "keyword.control.brace" },
+        "5": { "patterns": [{ "include": "#brace-expression" }] },
+        "6": { "name": "keyword.control.brace" },
+        "7": { "patterns": [{ "include": "#brace-expression" }] },
+        "8": { "name": "punctuation.section.block.begin.brace" }
+      }
+    },
+    "brace-opener": {
+      "comment": "@if (…) {   @switch (…) {   @try {",
+      "match": "^\\s*(@)(if|switch|try)\\b\\s*(\\([^)]*\\))?\\s*(\\{)",
+      "captures": {
+        "1": { "name": "punctuation.definition.keyword.brace" },
+        "2": { "name": "keyword.control.brace" },
+        "3": { "patterns": [{ "include": "#brace-expression" }] },
+        "4": { "name": "punctuation.section.block.begin.brace" }
+      }
+    },
+    "brace-arm": {
+      "comment": "@case <value>: {   @default: {",
+      "match": "^\\s*(@)(case|default)\\b\\s*(.*?)\\s*(:)\\s*(\\{)",
+      "captures": {
+        "1": { "name": "punctuation.definition.keyword.brace" },
+        "2": { "name": "keyword.control.brace" },
+        "3": { "patterns": [{ "include": "#brace-expression" }] },
+        "4": { "name": "punctuation.separator.key-value.brace" },
+        "5": { "name": "punctuation.section.block.begin.brace" }
+      }
+    },
+    "brace-close": {
+      "match": "^\\s*(\\})\\s*$",
+      "captures": {
+        "1": { "name": "punctuation.section.block.end.brace" }
+      }
+    },
+    "brace-dynamic-tag": {
+      "comment": "<{expr}>   <{expr} attr=\"value\" />   </{expr}>. The attributes reuse the same two rules Vue's own `tag-stuff` uses, so directives, attribute names and attribute values highlight exactly as they do on a static tag. (`tag-stuff` itself is anchored with `\\G`, which does not hold inside a capture region.)",
+      "match": "(</?)(\\{)([^}]*)(\\})([^>]*?)(/?>)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.begin.brace" },
+        "2": { "name": "punctuation.section.embedded.begin.brace" },
+        "3": { "patterns": [{ "include": "#brace-expression" }] },
+        "4": { "name": "punctuation.section.embedded.end.brace" },
+        "5": {
+          "patterns": [
+            { "include": "text.html.vue#vue-directives" },
+            { "include": "text.html.basic#attribute" }
+          ]
+        },
+        "6": { "name": "punctuation.definition.tag.end.brace" }
+      }
+    },
+    "brace-interpolation": {
+      "begin": "(\\{\\{)",
+      "end": "(\\}\\})",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.interpolation.begin.brace" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.interpolation.end.brace" }
+      },
+      "patterns": [{ "include": "#brace-expression" }]
+    },
+    "brace-expression": {
+      "comment": "Expressions are close enough to JS to borrow its grammar. Vue's own directive and interpolation rules scope template expressions as `source.ts#expression` (TypeScript is a superset of JavaScript, and it is what a normal template uses), so brace expressions use the same grammar instead of `source.js`. `@for` clauses (`index i`, `key x.id`) are not valid JS or TS, so they only highlight loosely.",
+      "patterns": [{ "include": "#brace-string" }, { "include": "source.ts#expression" }]
+    },
+    "brace-string": {
+      "patterns": [
+        { "name": "string.quoted.single.brace", "match": "'[^']*'" },
+        { "name": "string.quoted.double.brace", "match": "\"[^\"]*\"" }
+      ]
+    }
+  }
+}
