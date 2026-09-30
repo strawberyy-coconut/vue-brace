@@ -110,7 +110,7 @@ async function publish(request: Request, name: string): Promise<Response> {
   const packument: Packument = existing ?? { name, 'dist-tags': {}, versions: {} }
   packument.versions[version] = versions[version]!
   // `latest` follows the newest publish. Comparing versions properly would need semver; a
-  // deploy toolchain that publishes 0.1.0 then 0.1.1 is not the case worth code for.
+  // deploy toolchain that publishes 0.1.0 then 0.1.2 is not the case worth code for.
   packument['dist-tags'].latest = version
   await Deno.writeTextFile(packumentPath(name), JSON.stringify(packument, null, 2))
 

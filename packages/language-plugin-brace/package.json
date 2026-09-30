@@ -1,6 +1,6 @@
 {
   "name": "@cockernutx/language-plugin-brace",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Volar / Vue language tools plugin for lang=\"brace\" SFC templates",
   "license": "MIT",
   "type": "module",
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/strawberyy-coconut/vue-brace#readme",
   "bugs": "https://github.com/strawberyy-coconut/vue-brace/issues",
   "dependencies": {
-    "@cockernutx/brace-template": "^0.1.1",
+    "@cockernutx/brace-template": "^0.1.2",
     "@vue/language-core": "^3.3.11"
   },
   "peerDependencies": {
