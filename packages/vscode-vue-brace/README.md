@@ -12,9 +12,18 @@ written up in [`docs/internals/volar-and-editor-notes.md`](../../docs/internals/
 
 ## Installing
 
-This extension is sideloaded into the dev container rather than installed from the Marketplace:
-the VS Code server runs *inside* the container, so link the package into its extension directory
-and reload the window:
+Download `vscode-vue-brace.vsix` from the [latest
+release](https://github.com/strawberyy-coconut/vue-brace/releases/latest), then run
+**Extensions: Install from VSIX…** from the command palette and reload the window. Nothing is
+built locally — the release artifact is ready to install, in a local window or a remote /
+dev-container one alike.
+
+(The extension is not on the Marketplace yet; when it is, this becomes a one-click install.)
+
+### Working on the extension
+
+The VS Code server runs *inside* the dev container, so link the package into its extension
+directory instead — edits then take effect on reload:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
@@ -24,11 +33,13 @@ ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
 The folder name must be `<publisher>.<name>-<version>` — it has to match this package's
 `publisher`, `name` and `version` fields, or VS Code will not load it.
 
-Then run **Developer: Reload Window** from the command palette. To confirm, open a `.vue`
-file with `lang="brace"` and use **Developer: Inspect Editor Tokens and Scopes** on an
-`@if` line; the scope should read `keyword.control.brace`.
-
 To remove it, delete the symlink and reload.
+
+### Confirming it loaded
+
+Run **Developer: Reload Window**, then open a `.vue` file with `lang="brace"` and use
+**Developer: Inspect Editor Tokens and Scopes** on an `@if` line; the scope should read
+`keyword.control.brace`.
 
 ## What is highlighted
 

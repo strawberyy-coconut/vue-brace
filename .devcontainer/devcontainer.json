@@ -37,6 +37,13 @@
   // Uncomment the next line to run commands after the container is created.
   // "postCreateCommand": "cat /etc/os-release",
 
+  // The workspace consumes the packages' `src/`, and Volar loads the language plugin with
+  // `require()` in a Node process, where TypeScript source is not enough — an unbuilt plugin is a
+  // swallowed `SyntaxError` and the editor silently runs without language features. So install and
+  // build once here, and the editor works from the first window. Rebuild after a plugin change
+  // (`deno task build:plugin`); `deno task dev` and `deno task test` do it too.
+  "postCreateCommand": "deno install && deno task build:plugin",
+
   // Configure tool-specific properties.
   // "customizations": {},
 

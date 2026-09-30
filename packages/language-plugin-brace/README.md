@@ -8,6 +8,10 @@ produces spurious errors and no hover.
 
 ## Setup
 
+```sh
+npm install -D @cockernutx/language-plugin-brace
+```
+
 ```jsonc
 // tsconfig.app.json
 {
@@ -17,29 +21,34 @@ produces spurious errors and no hover.
 }
 ```
 
-## Build before you use it
+That is the whole setup: the package ships built JavaScript, so there is nothing to compile, and
+**Developer: Reload Window** is the only other step (the language server loads plugins at startup).
 
-```sh
-deno task build:plugin     # from the repo root
-```
+## If the plugin does not load
 
-Volar loads the plugin by calling `require()` on it in a Node process (`vue-tsc` and the
-editor's language server), so the entry must be built JavaScript — `src/index.ts` resolves only
-under Deno. When the load fails Volar swallows the `SyntaxError` and runs **without the plugin**:
-brace templates lose hover, completions and diagnostics, and the only trace is this line in the
-Vue Language Server output channel:
+Volar loads the plugin by calling `require()` on it in a Node process (`vue-tsc` and the editor's
+language server). When that fails Volar swallows the `SyntaxError` and runs **without the plugin**:
+brace templates lose hover, completions and diagnostics, and the only trace is this line in the Vue
+Language Server output channel:
 
 ```
 [Vue] Resolve plugin path failed: @cockernutx/language-plugin-brace SyntaxError: …
 ```
 
-`index.cjs` loads `dist/index.js`, `deno task test` rebuilds it, and a test fails if `dist` is
-missing or older than the source it came from.
-
 **Check it loaded:** hover a variable inside `@try` — a type means loaded, `any` (or nothing)
 means not. In that case Volar also reports errors on valid brace syntax.
 
-**Reload the window** after building: the language server only loads plugins at startup.
+### Working on the plugin itself
+
+The plugin is TypeScript, and only this repository's Deno toolchain can load that directly; a Node
+process needs the build. So from a checkout, compile before the editor will see your changes:
+
+```sh
+deno task build:plugin     # from the repo root
+```
+
+`index.cjs` loads `dist/index.js`, `deno task test` rebuilds it, and a test fails if `dist` is
+missing or older than the source it came from.
 
 ## Notes
 

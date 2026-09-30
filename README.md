@@ -44,6 +44,10 @@ deno task dev    # builds the packages, then starts the playground dev server
 
 In an app:
 
+```sh
+npm install @cockernutx/brace-template
+```
+
 ```ts
 // vite.config.ts
 import { createRequire } from 'node:module'
@@ -74,24 +78,35 @@ The `<template lang="brace">` attribute *is* the registration; nothing else need
 ## Editor setup
 
 Highlighting and language features are two separate pieces, and brace templates need both.
+Neither one is built on your machine: the published packages ship compiled JavaScript, so this is
+install-and-reload.
 
-1. Install the [`vscode-vue-brace`](packages/vscode-vue-brace) extension — its README has the
-   dev-container symlink and the check that it loaded.
-2. Declare the plugin in the project's tsconfig:
+1. Install the [`vscode-vue-brace`](packages/vscode-vue-brace) extension for highlighting — its
+   README has the download/sideload paths and the check that it loaded.
+2. Install the Volar plugin and declare it in the project's tsconfig:
+
+```sh
+npm install -D @cockernutx/language-plugin-brace
+```
 
 ```jsonc
 { "vueCompilerOptions": { "plugins": ["@cockernutx/language-plugin-brace"] } }
 ```
 
-3. Build the plugin. Volar loads it with `require()` in a Node process, so TypeScript source is not
-   enough: an unbuilt plugin is a swallowed `SyntaxError` and the editor silently runs without
-   language features.
+Then run **Developer: Reload Window**.
+
+### Inside this repository
+
+This workspace resolves the packages' `src/`, and Volar loads a language plugin by calling
+`require()` on it in a Node process — where TypeScript source is not enough. An unbuilt plugin is a
+swallowed `SyntaxError`, and the editor silently runs without language features, so build it once
+(and after every plugin change) and reload:
 
 ```sh
 deno task build:plugin
 ```
 
-Then run **Developer: Reload Window**.
+`deno task dev` and `deno task test` run that for you.
 
 ## Commands
 
@@ -103,7 +118,7 @@ Then run **Developer: Reload Window**.
 | `deno task lint` | oxlint + eslint in the playground, oxlint over `packages/` and `scripts/` |
 | `deno task check:types` | `tsc` over `packages/*/type-tests` (Vue's `SlotsType` needs tsc, not `deno check`) |
 | `deno task check:pack` | every `exports` target exists and none points at TypeScript |
-| `deno task build:plugin` | compiles the compiler and the Volar plugin for Node |
+| `deno task build:plugin` | compiles the compiler and the Volar plugin for Node — what this repo's editor loads |
 | `deno task registry` | the repository's own npm registry, on `:4873` |
 | `deno task release` | build, pack and publish both packages (`--local` for that registry) |
 | `deno task type-check` | `vue-tsc --build` — needs a Node runtime, see the notes below |
