@@ -107,7 +107,7 @@ the dev container:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
-      /root/.vscode-server/extensions/cockernutx.vscode-vue-brace-0.1.0
+      /root/.vscode-server/extensions/cockernutx.vscode-vue-brace-0.1.1
 ```
 
 then **Developer: Reload Window**. See `packages/vscode-vue-brace/README.md` for details and

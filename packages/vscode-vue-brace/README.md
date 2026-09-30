@@ -52,7 +52,7 @@ extension directory and reloading the window:
 
 ```sh
 ln -s /workspaces/vue-brace/packages/vscode-vue-brace \
-      /root/.vscode-server/extensions/cockernutx.vscode-vue-brace-0.1.0
+      /root/.vscode-server/extensions/cockernutx.vscode-vue-brace-0.1.1
 ```
 
 The folder name must be `<publisher>.<name>-<version>` — it has to match this package's
