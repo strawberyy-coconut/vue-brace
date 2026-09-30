@@ -47,6 +47,13 @@ regenerated, and every publish runs the build first.
 | `release.yml` | `v*` tag, or manual dispatch | checks the tag against every manifest, tests, then publishes both packages to `vars.NPM_REGISTRY` with `secrets.NPM_TOKEN` |
 | `extension.yml` | `v*` tag, or manual dispatch | packages the extension with `vsce`, uploads the `.vsix`, and publishes it via trusted publishing — no PAT stored |
 
+`extension.yml` pins `vsce` to an exact pre-release (the `VSCE_VERSION` env at the top of the
+workflow) rather than to `latest`. The `latest` release, 4.0.0, predates the Marketplace's OIDC
+contract: it omits `api-version=7.2-preview.1` and the `FederatedToken` scheme, and the exchange is
+rejected with a 400 before any authentication happens — which reads like a credential problem but is
+not one. vscode-vsce#1337 carries the correction and has shipped as a pre-release only, so the
+version stays pinned until 4.0.1 is released.
+
 ## Repository settings
 
 Everything the workflows read has to exist in the repository, not in the code. Click-paths are for
@@ -57,15 +64,17 @@ GitHub's UI; the values are the ones this repository expects.
 | `NPM_REGISTRY` | Settings → Secrets and variables → Actions → **Variables** → New repository variable | `https://registry.npmjs.org` (the website, `www.npmjs.com`, is not a publish target) |
 | `NPM_TOKEN` | same page → **Secrets** → New repository secret | an npm **automation** token (npmjs.com → Access Tokens → Generate new token → Automation). Automation tokens skip the OTP prompt, which a release job cannot answer |
 | npm scope | — | nothing to create: `@cockernutx` is the publishing account's username, so npm gives it that scope automatically. An org named instead would have to be created and the packages renamed into it. |
-| Marketplace publisher | marketplace.visualstudio.com → Manage publishers | a publisher named `vue-brace`, matching `publisher` in the extension manifest |
-| Trusted publishing | that publisher → Trusted Publishing | repository `strawberyy-coconut/vue-brace`, workflow `extension.yml`. This is what `vsce publish --oidc` exchanges for a session token, so no PAT is stored |
+| Marketplace publisher | marketplace.visualstudio.com → Manage publishers | a publisher named `cockernutx`, matching `publisher` in the extension manifest. This id has to be claimed before anything else on the Marketplace side can be configured |
+| Trusted publishing | that publisher → Trusted Publishing | repository `strawberyy-coconut/vue-brace`, workflow `extension.yml`. This is what `vsce publish --oidc` exchanges for a session token, so no PAT is stored. It is attached to the publisher id above, so renaming the publisher means recreating it here |
 | Workflow permissions | Settings → Actions → General | "Read repository contents" is enough: each workflow declares the permissions it needs, and only the extension publish asks for `id-token: write` |
 | Environment `release` | Settings → Environments | created automatically on first release. Optional: add required reviewers to gate publishing, and move `NPM_TOKEN` here from repository secrets to scope it to releases (leave the variable where it is, or add it here too) |
 | Tag protection | Settings → Tags → New rule: `v*` | the tag *is* the publish trigger, so restrict who can create one |
 | Branch rules | Settings → Rules → New branch ruleset | require the `test` check on `master`, so red CI cannot be merged or tagged |
 
 Two things stay outside GitHub: the npm scope and the Marketplace publisher. Both belong to an
-account, not to this repository, and both have to exist before the first release.
+account rather than to this repository. The scope needs no work — a username scope exists as soon as
+the account does — but the publisher has to be created, and the trusted publishing policy attached
+to it, before the first extension release.
 
 CI itself needs nothing: `ci.yml` runs with no secrets at all.
 

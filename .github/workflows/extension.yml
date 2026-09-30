@@ -3,11 +3,11 @@ name: Extension
 # The VS Code extension is the one artefact this repository cannot build for itself: `vsce` needs
 # Node, and the dev container has none by design. A runner has it, so packaging lives here.
 #
-# Publishing needs a trusted publishing policy set up on the Marketplace for this repository and
-# workflow (Publishers → your publisher → Trusted Publishing). No Personal Access Token is stored:
-# `--oidc` exchanges a short-lived GitHub token for a Marketplace session. Without the policy the
-# publish step fails loudly, which is the intended behaviour — a silent skip would leave the
-# extension behind the packages.
+# Publishing needs a trusted publishing policy set up on the Marketplace for publisher `cockernutx`,
+# this repository and this workflow (Publishers → `cockernutx` → Trusted Publishing). No Personal
+# Access Token is stored: `--oidc` exchanges a short-lived GitHub token for a Marketplace session.
+# Without the policy the publish step fails loudly, which is the intended behaviour — a silent skip
+# would leave the extension behind the packages.
 
 on:
   push:
@@ -16,6 +16,14 @@ on:
 
 permissions:
   contents: read
+
+env:
+  # `latest` is 4.0.0, which speaks an older draft of the Marketplace OIDC contract: it sends no
+  # `api-version` on the token exchange and no `FederatedToken` scheme, so the exchange is rejected
+  # with a 400 before authentication is even attempted. The corrected contract is vscode-vsce#1337,
+  # which has shipped as a pre-release only. Bump to `latest` once 4.0.1 is released — the pin is
+  # exact, so a new pre-release cannot change this workflow underneath it.
+  VSCE_VERSION: '4.0.1-1'
 
 jobs:
   package:
@@ -32,7 +40,7 @@ jobs:
         working-directory: packages/vscode-vue-brace
         # `< /dev/null` so nothing can sit waiting for an answer: `vsce` prompts when a manifest
         # field it wants is missing, and a prompt on a runner is a step that times out.
-        run: npx --yes @vscode/vsce package --out vscode-vue-brace.vsix < /dev/null
+        run: npx --yes @vscode/vsce@${{ env.VSCE_VERSION }} package --out vscode-vue-brace.vsix < /dev/null
 
       - uses: actions/upload-artifact@v4
         with:
@@ -63,4 +71,4 @@ jobs:
 
       - name: Publish
         working-directory: packages/vscode-vue-brace
-        run: npx --yes @vscode/vsce publish --oidc < /dev/null
+        run: npx --yes @vscode/vsce@${{ env.VSCE_VERSION }} publish --oidc < /dev/null

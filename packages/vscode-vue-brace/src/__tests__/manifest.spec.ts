@@ -171,9 +171,15 @@ describe('extension manifest', () => {
   })
 
   it('is named so VS Code can install it from a folder', () => {
-    // The extensions directory entry must be `<publisher>.<name>-<version>`.    expect(manifest.publisher).toBe('vue-brace')
+    // VS Code keys the extensions directory on `<publisher>.<name>-<version>`, so the folder name
+    // documented in the README has to stay derived from these fields. A mismatch loads nothing and
+    // reports nothing: the grammar simply never appears.
+    expect(manifest.publisher).toBe('cockernutx')
     expect(manifest.name).toBe('vscode-vue-brace')
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/)
+
+    const readme = readFileSync(new URL('../../README.md', import.meta.url), 'utf8')
+    expect(readme).toContain(`${manifest.publisher}.${manifest.name}-${manifest.version}`)
   })
 
   /**
