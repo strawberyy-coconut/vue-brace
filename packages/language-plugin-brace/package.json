@@ -1,6 +1,6 @@
 {
   "name": "@cockernutx/language-plugin-brace",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Volar / Vue language tools plugin for lang=\"brace\" SFC templates",
   "license": "MIT",
   "type": "module",
