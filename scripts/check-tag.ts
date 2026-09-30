@@ -10,8 +10,8 @@
  * A publish that succeeds under the wrong version is the expensive kind of mistake — registries
  * refuse to replace a version, so the only fix is another release — and the tag is the one place
  * where a version is written by hand instead of read from a manifest. This also checks the
- * cross-package range, which is the other hand-maintained version ("keep the plugin's
- * `@vue-brace/brace-template` range in step" in docs/releasing.md).
+ * cross-package dependency range, which is the other hand-maintained version ("keep the plugin's
+ * `brace-template` range in step" in docs/releasing.md).
  */
 const tag = Deno.args[0]?.trim().replace(/^v/, '')
 if (!tag) {
@@ -38,10 +38,18 @@ for (const dir of packages) {
   }
   console.log(`${manifest.name}@${manifest.version}`)
 
-  const range = manifest.dependencies?.['@vue-brace/brace-template']
-  if (range && range !== `^${tag}`) {
-    console.error(`${dir}: depends on @vue-brace/brace-template ${range}, expected ^${tag}`)
-    problems += 1
+  // Found by suffix rather than by a hardcoded scope: an optional lookup keyed on the full name
+  // would let a half-finished scope rename skip the check silently, which is the worst version of
+  // this check's failure mode.
+  if (manifest.dependencies) {
+    const key = Object.keys(manifest.dependencies).find((name) => name.endsWith('/brace-template'))
+    if (!key) {
+      console.error(`${dir}: has dependencies but no brace-template entry`)
+      problems += 1
+    } else if (manifest.dependencies[key] !== `^${tag}`) {
+      console.error(`${dir}: depends on ${key} ${manifest.dependencies[key]}, expected ^${tag}`)
+      problems += 1
+    }
   }
 }
 
