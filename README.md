@@ -117,7 +117,7 @@ deno task build
 | `deno task build` | builds both packages, then the playground (production) |
 | `deno task lint` | oxlint over `packages/` and `containers/`, eslint + oxlint in the playground |
 | `deno task check:types` | `tsc` over `packages/brace-template/type-tests` (Vue's `SlotsType` needs tsc, not `deno check`) |
-| `deno task type-check` | `vue-tsc --build` — needs a Node runtime, so it runs in the CI container |
+| `deno task type-check` | `vue-tsc --build` (run through `npx`, for a Node runtime) — needs Node, so it runs in the CI container |
 
 Everything else this repository needs is not a task. It lives in [`containers/`](containers) as
 shell scripts — there is no CI YAML to read, so these are the deployment:
@@ -143,6 +143,9 @@ package owns its own `build` and `test`.
 - **`vue-tsc` does not work under Deno** — it registers `.vue` support by hooking
   `fs.readFileSync`, which Deno bypasses, and the failure is silent. `deno task check:types` is the
   type check that works here; `deno task type-check` needs Node, so it runs in the CI container.
+  The playground's `type-check` therefore goes through `npx`: `deno task` runs a bare
+  `node_modules/.bin` command with the Deno runtime, so `vue-tsc` has to be started by something
+  that spawns Node.
 - **Inside `@try` / `@catch` / `@pending`, bindings hover as `any` if `<BraceTry>` does not
   resolve.** It registers itself globally (`GlobalComponents`, and `playground/env.d.ts` does too).
 - **`@for` with `index` / `key`, and the `@catch` bindings, are where generated text has to line up

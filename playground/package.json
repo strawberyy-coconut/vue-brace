@@ -8,7 +8,7 @@
     "build": "vite build",
     "test": "vitest run",
     "lint": "oxlint . && eslint . --cache",
-    "type-check": "vue-tsc --build"
+    "type-check": "npx --no-install vue-tsc --build"
   },
   "dependencies": {
     "@cockernutx/brace-template": "workspace:*",

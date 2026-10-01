@@ -21,8 +21,15 @@ import { defineComponent, type SlotsType } from 'vue'
 export const BraceEmpty = defineComponent({
   name: 'BraceEmpty',
   props: {
-    /** The list the `@for` iterates. `unknown`: a template expression can be anything. */
-    list: { required: false, default: undefined },
+    /**
+     * The list the `@for` iterates. `unknown`: a template expression can be anything.
+     *
+     * Deliberately no `default`: `default: undefined` makes Vue infer the prop as
+     * `undefined`, so `:list="<the list>"` is rejected and every `@for … @empty` fails to
+     * type-check. An absent prop is `undefined` at runtime either way, which `isEmpty`
+     * handles.
+     */
+    list: { required: false },
   },
   slots: Object as SlotsType<{ default?: () => unknown }>,
   setup(props, { slots }) {
